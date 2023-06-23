@@ -1,0 +1,23 @@
+[build]
+# ビルドコマンド
+cmd = "go build -o ./tmp/main ."
+# ビルドファイルのディレクトリ
+bin = "tmp/main"
+# ビルド対象のファイル
+include_ext = ["go", "tpl", "tmpl", "html"]
+# ビルドから除外するディレクトリ
+exclude_dir = ["assets", "tmp", "vendor"]
+# ビルド時の環境変数
+env = ["CGO_ENABLED=0", "GOOS=linux", "GOARCH=amd64"]
+
+[watch]
+# ビルドをトリガーするファイル
+include_dir = ["."]
+# ビルドをトリガーしないファイル
+exclude_dir = ["assets", "tmp", "vendor"]
+
+[color]
+# 色付き出力をするかどうか
+status = "auto"
+# 出力色の設定
+build = "yellow"
