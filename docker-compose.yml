@@ -4,11 +4,11 @@ services:
     image: postgres:14
     restart: always
     environment:
-      POSTGRES_DB: twitter
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: password
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "5432:5432"
+      - "5432:${DB_PORT}"
     volumes:
       - db_data:/var/lib/postgresql/data
     healthcheck:
@@ -20,8 +20,11 @@ services:
       dockerfile: Dockerfile
       target: development
     environment:
-      DBUSER: user
-      DBPASS: password
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
     volumes:
       - .:/twitter_clone
     ports:

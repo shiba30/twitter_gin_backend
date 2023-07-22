@@ -1,29 +1,26 @@
 package config
 
 import (
-	"encoding/json"
 	"os"
 )
 
 type Config struct {
-	DBHost     string `json:"db_host"`
-	DBPort     string `json:"db_port"`
-	DBUser     string `json:"db_user"`
-	DBPassword string `json:"db_password"`
-	DBName     string `json:"db_name"`
+	DBHost     string
+	DBPort     string
+	DBUser     string
+	DBPassword string
+	DBName     string
 }
 
-// 設定ファイルから値を取得する
-func LoadConfig(filename string) (Config, error) {
+// LoadConfig は環境変数から設定を読み込みます。
+func LoadConfig() Config {
 	var cfg Config
 
-	cfgFile, err := os.Open(filename)
-	if err != nil {
-		return cfg, err
-	}
-	defer cfgFile.Close()
+	cfg.DBHost = os.Getenv("DB_HOST")
+	cfg.DBPort = os.Getenv("DB_PORT")
+	cfg.DBUser = os.Getenv("DB_USER")
+	cfg.DBPassword = os.Getenv("DB_PASSWORD")
+	cfg.DBName = os.Getenv("DB_NAME")
 
-	jsonParser := json.NewDecoder(cfgFile)
-	err = jsonParser.Decode(&cfg)
-	return cfg, err
+	return cfg
 }
