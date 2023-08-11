@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"log"
 	"net/smtp"
-	"os"
 
+	"example.com/golang_twitter/config"
 	db "example.com/golang_twitter/db"
 	sqlc "example.com/golang_twitter/db/sqlc"
 	"github.com/dgrijalva/jwt-go"
@@ -15,8 +15,7 @@ import (
 )
 
 // JWTで署名されたアクティベーショントークンを生成
-func generateActivationToken(user sqlc.CreateUserRow) (string, error) {
-	secretKey := os.Getenv("SECRET_KEY")
+func generateActivationToken(cfg config.Config, user sqlc.CreateUserRow) (string, error) {
 
 	// トークンに含めるクレームを設定
 	claims := jwt.MapClaims{}
@@ -27,7 +26,7 @@ func generateActivationToken(user sqlc.CreateUserRow) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	// 秘密鍵を使ってトークンに署名
-	tokenString, err := token.SignedString([]byte(secretKey))
+	tokenString, err := token.SignedString([]byte(cfg.SecretKey))
 
 	if err != nil {
 		return "", err
@@ -37,10 +36,7 @@ func generateActivationToken(user sqlc.CreateUserRow) (string, error) {
 }
 
 // アクティベーションメール送信
-func sendActivationEmail(user sqlc.CreateUserRow, activationToken string) error {
-	smtpHost := os.Getenv("SMTP_HOST")
-	smtpPort := os.Getenv("SMTP_PORT")
-	from := os.Getenv("FROM_EMAIL")
+func sendActivationEmail(cfg config.Config, user sqlc.CreateUserRow, activationToken string) error {
 	to := user.Email
 
 	body := "To: " + to + "\r\n" +
@@ -50,7 +46,7 @@ func sendActivationEmail(user sqlc.CreateUserRow, activationToken string) error 
 		"下記のリンクをクリックしてメールアドレスを確認してください。\r\n" +
 		"http://localhost:8080/api/user/verify/" + activationToken + "\r\n"
 
-	err := smtp.SendMail(smtpHost+":"+smtpPort, nil, from, []string{to}, []byte(body))
+	err := smtp.SendMail(cfg.SmtpHost+":"+cfg.SmtpPort, nil, cfg.From, []string{to}, []byte(body))
 	if err != nil {
 		return fmt.Errorf("failed to send activation email: %v", err)
 	}

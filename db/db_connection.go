@@ -12,9 +12,7 @@ import (
 var dbConn *sql.DB
 
 // DB接続を行う
-func ConnectDB() {
-	cfg := config.LoadConfig()
-
+func ConnectDB(cfg config.Config) {
 	dbinfo := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPassword, cfg.DBName)

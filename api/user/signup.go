@@ -8,6 +8,7 @@ import (
 	"net/mail"
 	"regexp"
 
+	"example.com/golang_twitter/config"
 	db "example.com/golang_twitter/db"
 	sqlc "example.com/golang_twitter/db/sqlc"
 	"github.com/gin-gonic/gin"
@@ -19,13 +20,19 @@ type signupForm struct {
 	Password string `json:"password"`
 }
 
-func SignupRoutes(router *gin.RouterGroup) {
+func signupHandler(cfg config.Config) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		signup(c, cfg)
+	}
+}
+
+func SignupRoutes(router *gin.RouterGroup, cfg config.Config) {
 	user := router.Group("/user")
 	{
 		user.GET("/signup", func(c *gin.Context) {
 			c.HTML(http.StatusOK, "signup.html", nil)
 		})
-		user.POST("/signup", signup)
+		user.POST("/signup", signupHandler(cfg))
 		user.GET("/verification", func(c *gin.Context) {
 			c.HTML(http.StatusOK, "verification.html", nil)
 		})
@@ -52,7 +59,7 @@ func validatePassword(pwd string) bool {
 }
 
 // サインアップ機能
-func signup(c *gin.Context) {
+func signup(c *gin.Context, cfg config.Config) {
 	var form signupForm
 
 	// フォーム値チェック
@@ -113,7 +120,7 @@ func signup(c *gin.Context) {
 	}
 
 	// アクティベーショントークン生成
-	activationToken, err := generateActivationToken(user)
+	activationToken, err := generateActivationToken(cfg, user)
 	if err != nil {
 		log.Printf("failed to generate activation token: %v", err)
 		c.JSON(500, gin.H{"error": "アクティベーショントークンの生成に失敗しました"})
@@ -133,7 +140,7 @@ func signup(c *gin.Context) {
 	}
 
 	// アクティベーションメール送信
-	err = sendActivationEmail(user, activationToken)
+	err = sendActivationEmail(cfg, user, activationToken)
 	if err != nil {
 		log.Printf("failed to send activation email: %v", err)
 		c.JSON(500, gin.H{"error": "アクティベーションメールの送信に失敗しました"})

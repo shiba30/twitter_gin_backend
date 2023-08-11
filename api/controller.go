@@ -6,12 +6,21 @@ package api
 
 import (
 	"example.com/golang_twitter/api/user"
+	"example.com/golang_twitter/config"
 	"github.com/gin-gonic/gin"
 )
 
-func Routes(router *gin.Engine) {
+type Controller struct {
+	Config config.Config
+}
+
+func NewController(cfg config.Config) *Controller {
+	return &Controller{Config: cfg}
+}
+
+func (c *Controller) Routes(router *gin.Engine) {
 	api := router.Group("/api")
 	{
-		user.SignupRoutes(api)
+		user.SignupRoutes(api, c.Config)
 	}
 }
