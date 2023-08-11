@@ -19,7 +19,7 @@ type signupForm struct {
 	Password string `json:"password"`
 }
 
-func Routes(router *gin.RouterGroup) {
+func SignupRoutes(router *gin.RouterGroup) {
 	user := router.Group("/user")
 	{
 		user.GET("/signup", func(c *gin.Context) {
@@ -29,6 +29,7 @@ func Routes(router *gin.RouterGroup) {
 		user.GET("/verification", func(c *gin.Context) {
 			c.HTML(http.StatusOK, "verification.html", nil)
 		})
+		user.GET("/verify/:token", activateUser) // 確認メールのリンクが踏まれた時に呼び出される関数
 	}
 }
 
@@ -79,13 +80,15 @@ func signup(c *gin.Context) {
 	queries := sqlc.New(db.DbConn())
 
 	// 既に登録されているユーザであるかをチェック
-	existingUser, err := queries.GetUserByEmail(context.Background(), form.Email)
-	if err != nil && err != sql.ErrNoRows {
-		log.Printf("failed to check if user exists: %v", err)
-		c.JSON(500, gin.H{"error": "サインアップに失敗しました"})
-		return
-	}
-	if existingUser != nil {
+	_, err := queries.GetUserByEmail(context.Background(), form.Email)
+	if err != nil {
+		if err != sql.ErrNoRows {
+			log.Printf("failed to check if user exists: %v", err)
+			c.JSON(500, gin.H{"error": "サインアップに失敗しました"})
+			return
+		}
+	} else {
+		// 既にユーザが登録されている
 		c.JSON(400, gin.H{"error": "既に登録されています"})
 		return
 	}
@@ -106,6 +109,34 @@ func signup(c *gin.Context) {
 	if err != nil {
 		log.Printf("failed to create user: %v", err)
 		c.JSON(500, gin.H{"error": "ユーザ情報登録に失敗しました"})
+		return
+	}
+
+	// アクティベーショントークン生成
+	activationToken, err := generateActivationToken(user)
+	if err != nil {
+		log.Printf("failed to generate activation token: %v", err)
+		c.JSON(500, gin.H{"error": "アクティベーショントークンの生成に失敗しました"})
+		return
+	}
+
+	// アクティベーショントークンをDBに保存
+	_, err = queries.UpdateUser(context.Background(), sqlc.UpdateUserParams{
+		ID:              user.ID,
+		ActivationToken: sql.NullString{String: activationToken, Valid: true},
+		IsActive:        false,
+	})
+	if err != nil {
+		log.Printf("failed to save activation token: %v", err)
+		c.JSON(500, gin.H{"error": "アクティベーショントークンの保存に失敗しました"})
+		return
+	}
+
+	// アクティベーションメール送信
+	err = sendActivationEmail(user, activationToken)
+	if err != nil {
+		log.Printf("failed to send activation email: %v", err)
+		c.JSON(500, gin.H{"error": "アクティベーションメールの送信に失敗しました"})
 		return
 	}
 

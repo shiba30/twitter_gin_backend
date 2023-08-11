@@ -25,6 +25,9 @@ services:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: ${DB_NAME}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      FROM_EMAIL: ${FROM_EMAIL}
     volumes:
       - .:/twitter_clone
     ports:
@@ -32,6 +35,12 @@ services:
     depends_on:
       db:
         condition: service_healthy
+
+  mail:
+    image: schickling/mailcatcher
+    ports:
+      - "1025:1025"
+      - "1080:1080"
 
 volumes:
   db_data:

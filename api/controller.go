@@ -12,6 +12,6 @@ import (
 func Routes(router *gin.Engine) {
 	api := router.Group("/api")
 	{
-		user.Routes(api)
+		user.SignupRoutes(api)
 	}
 }

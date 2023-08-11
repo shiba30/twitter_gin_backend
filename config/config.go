@@ -12,7 +12,7 @@ type Config struct {
 	DBName     string
 }
 
-// LoadConfig は環境変数から設定を読み込みます。
+// 環境変数から設定値読込
 func LoadConfig() Config {
 	var cfg Config
 
