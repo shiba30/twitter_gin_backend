@@ -1,7 +1,6 @@
 package user
 
 import (
-	"context"
 	"database/sql"
 	"fmt"
 	"log"
@@ -65,7 +64,7 @@ func activateUser(c *gin.Context) {
 
 	// アクティベーショントークンでユーザ検索
 	queries := sqlc.New(db.DbConn())
-	userId, err := queries.GetUserByActivationToken(context.Background(), token)
+	userId, err := queries.GetUserByActivationToken(c, token)
 	if err != nil {
 		log.Printf("failed to find user by activation token: %v", err)
 		c.JSON(400, gin.H{"error": "アクティベーショントークンが無効です"})
@@ -73,7 +72,7 @@ func activateUser(c *gin.Context) {
 	}
 
 	// ユーザをアクティブ状態に更新
-	_, err = queries.UpdateUser(context.Background(), sqlc.UpdateUserParams{
+	_, err = queries.UpdateUser(c, sqlc.UpdateUserParams{
 		ID:              userId,
 		ActivationToken: sql.NullString{Valid: false},
 		IsActive:        true,
