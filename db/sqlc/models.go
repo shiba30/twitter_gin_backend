@@ -13,8 +13,8 @@ type User struct {
 	ID               int64          `json:"id"`
 	Email            string         `json:"email"`
 	Password         string         `json:"password"`
-	PhoneNumber      string         `json:"phone_number"`
-	DisplayName      string         `json:"display_name"`
+	PhoneNumber      sql.NullString `json:"phone_number"`
+	DisplayName      sql.NullString `json:"display_name"`
 	SelfIntroduction sql.NullString `json:"self_introduction"`
 	Location         sql.NullString `json:"location"`
 	Website          sql.NullString `json:"website"`
@@ -23,4 +23,6 @@ type User struct {
 	AvatarImage      sql.NullString `json:"avatar_image"`
 	CreatedAt        time.Time      `json:"created_at"`
 	UpdatedAt        time.Time      `json:"updated_at"`
+	ActivationToken  sql.NullString `json:"activation_token"`
+	IsActive         bool           `json:"is_active"`
 }

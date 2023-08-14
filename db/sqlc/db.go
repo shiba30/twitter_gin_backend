@@ -27,6 +27,15 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.createUserStmt, err = db.PrepareContext(ctx, createUser); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateUser: %w", err)
 	}
+	if q.getUserByActivationTokenStmt, err = db.PrepareContext(ctx, getUserByActivationToken); err != nil {
+		return nil, fmt.Errorf("error preparing query GetUserByActivationToken: %w", err)
+	}
+	if q.getUserByEmailStmt, err = db.PrepareContext(ctx, getUserByEmail); err != nil {
+		return nil, fmt.Errorf("error preparing query GetUserByEmail: %w", err)
+	}
+	if q.updateUserStmt, err = db.PrepareContext(ctx, updateUser); err != nil {
+		return nil, fmt.Errorf("error preparing query UpdateUser: %w", err)
+	}
 	return &q, nil
 }
 
@@ -35,6 +44,21 @@ func (q *Queries) Close() error {
 	if q.createUserStmt != nil {
 		if cerr := q.createUserStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing createUserStmt: %w", cerr)
+		}
+	}
+	if q.getUserByActivationTokenStmt != nil {
+		if cerr := q.getUserByActivationTokenStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getUserByActivationTokenStmt: %w", cerr)
+		}
+	}
+	if q.getUserByEmailStmt != nil {
+		if cerr := q.getUserByEmailStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getUserByEmailStmt: %w", cerr)
+		}
+	}
+	if q.updateUserStmt != nil {
+		if cerr := q.updateUserStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing updateUserStmt: %w", cerr)
 		}
 	}
 	return err
@@ -74,15 +98,21 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 }
 
 type Queries struct {
-	db             DBTX
-	tx             *sql.Tx
-	createUserStmt *sql.Stmt
+	db                           DBTX
+	tx                           *sql.Tx
+	createUserStmt               *sql.Stmt
+	getUserByActivationTokenStmt *sql.Stmt
+	getUserByEmailStmt           *sql.Stmt
+	updateUserStmt               *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
-		db:             tx,
-		tx:             tx,
-		createUserStmt: q.createUserStmt,
+		db:                           tx,
+		tx:                           tx,
+		createUserStmt:               q.createUserStmt,
+		getUserByActivationTokenStmt: q.getUserByActivationTokenStmt,
+		getUserByEmailStmt:           q.getUserByEmailStmt,
+		updateUserStmt:               q.updateUserStmt,
 	}
 }

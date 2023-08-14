@@ -4,15 +4,18 @@ import (
 	"log"
 
 	"example.com/golang_twitter/api"
+	"example.com/golang_twitter/config"
 	"example.com/golang_twitter/db"
 	"github.com/gin-gonic/gin"
 )
 
 // Twitter clone by golang(gin)
 func main() {
+	// 環境変数取得
+	cfg := config.LoadConfig()
 
 	// DB接続
-	db.ConnectDB()
+	db.ConnectDB(cfg)
 	defer db.DbConn().Close()
 
 	router := gin.Default()
@@ -24,7 +27,8 @@ func main() {
 		c.IndentedJSON(200, gin.H{"status": "ok"})
 	})
 
-	api.Routes(router)
+	controller := api.NewController(cfg)
+	controller.Routes(router)
 
 	log.Println("Server started!")
 	router.Run("0.0.0.0:8080")
