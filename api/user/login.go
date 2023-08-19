@@ -51,7 +51,7 @@ var redisConn *redis.Client
 func InitializeRedis(cfg config.Config) {
 
 	redisConn = redis.NewClient(&redis.Options{
-		Addr:     "redis:6379",
+		Addr:     cfg.RedisAddr,
 		Password: cfg.RedisPassword,
 		DB:       cfg.RedisDB,
 	})
