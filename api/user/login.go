@@ -28,9 +28,22 @@ func LoginRoutes(router *gin.RouterGroup, cfg config.Config) {
 		user.POST("/login", func(c *gin.Context) {
 			login(c)
 		})
-		user.GET("/home", func(c *gin.Context) {
+		user.GET("/home", AuthRequired(), func(c *gin.Context) {
 			c.HTML(http.StatusOK, "home.html", nil)
 		})
+	}
+}
+
+func AuthRequired() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		sessionID, err := c.Cookie("session_id")
+		if err != nil || sessionID == "" {
+			// ログイン認証していない場合、login.htmlにリダイレクト
+			c.Redirect(http.StatusSeeOther, "/api/user/login")
+			c.Abort()
+			return
+		}
+		c.Next()
 	}
 }
 
