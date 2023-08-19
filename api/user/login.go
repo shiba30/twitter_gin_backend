@@ -1,7 +1,6 @@
 package user
 
 import (
-	"context"
 	"log"
 	"net/http"
 
@@ -47,13 +46,14 @@ func AuthRequired() gin.HandlerFunc {
 	}
 }
 
-var conn *redis.Client
+var redisConn *redis.Client
 
-func init() {
-	conn = redis.NewClient(&redis.Options{
+func InitializeRedis(cfg config.Config) {
+
+	redisConn = redis.NewClient(&redis.Options{
 		Addr:     "redis:6379",
-		Password: "",
-		DB:       0,
+		Password: cfg.RedisPassword,
+		DB:       cfg.RedisDB,
 	})
 }
 
@@ -74,7 +74,7 @@ func login(c *gin.Context) {
 	// ユーザ情報取得
 	log.Printf("Email to find: %s", form.Email)
 
-	userInfo, err := queries.GetUserInfo(context.Background(), form.Email)
+	userInfo, err := queries.GetUserInfo(c, form.Email)
 	if err != nil {
 		log.Printf("failed to get user info: %v", err)
 		c.JSON(401, gin.H{"error": "ログイン認証に失敗しました"})
@@ -101,7 +101,7 @@ func login(c *gin.Context) {
 
 	// redisにsession情報を保存
 	// セッション有効期限:0(無期限)
-	err = conn.Set(context.Background(), sessionID, userInfo.ID, 0).Err()
+	err = redisConn.Set(c, sessionID, userInfo.ID, 0).Err()
 	if err != nil {
 		log.Printf("failed to set session information: %v", err)
 		c.JSON(500, gin.H{"error": "内部エラーが発生しました"})

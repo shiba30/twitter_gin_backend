@@ -1,7 +1,6 @@
 package user
 
 import (
-	"context"
 	"database/sql"
 	"log"
 	"net/http"
@@ -87,7 +86,7 @@ func signup(c *gin.Context, cfg config.Config) {
 	queries := sqlc.New(db.DbConn())
 
 	// 既に登録されているユーザであるかをチェック
-	_, err := queries.GetUserByEmail(context.Background(), form.Email)
+	_, err := queries.GetUserByEmail(c, form.Email)
 	if err != nil {
 		if err != sql.ErrNoRows {
 			log.Printf("failed to check if user exists: %v", err)
@@ -109,7 +108,7 @@ func signup(c *gin.Context, cfg config.Config) {
 	}
 
 	// ユーザーを作成
-	user, err := queries.CreateUser(context.Background(), sqlc.CreateUserParams{
+	user, err := queries.CreateUser(c, sqlc.CreateUserParams{
 		Email:    form.Email,
 		Password: string(hash_pwd),
 	})
@@ -128,7 +127,7 @@ func signup(c *gin.Context, cfg config.Config) {
 	}
 
 	// アクティベーショントークンをDBに保存
-	_, err = queries.UpdateUser(context.Background(), sqlc.UpdateUserParams{
+	_, err = queries.UpdateUser(c, sqlc.UpdateUserParams{
 		ID:              user.ID,
 		ActivationToken: sql.NullString{String: activationToken, Valid: true},
 		IsActive:        false,

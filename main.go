@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"example.com/golang_twitter/api"
+	"example.com/golang_twitter/api/user"
 	"example.com/golang_twitter/config"
 	"example.com/golang_twitter/db"
 	"github.com/gin-gonic/gin"
@@ -17,6 +18,9 @@ func main() {
 	// DB接続
 	db.ConnectDB(cfg)
 	defer db.DbConn().Close()
+
+	// Redis接続を初期化
+	user.InitializeRedis(cfg)
 
 	router := gin.Default()
 

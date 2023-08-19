@@ -1,24 +1,30 @@
 package config
 
 import (
+	"log"
 	"os"
+	"strconv"
 )
 
 type Config struct {
-	DBHost     string
-	DBPort     string
-	DBUser     string
-	DBPassword string
-	DBName     string
-	SmtpHost   string
-	SmtpPort   string
-	From       string
-	SecretKey  string
+	DBHost        string
+	DBPort        string
+	DBUser        string
+	DBPassword    string
+	DBName        string
+	SmtpHost      string
+	SmtpPort      string
+	From          string
+	SecretKey     string
+	RedisAddr     string
+	RedisPassword string
+	RedisDB       int
 }
 
 // 環境変数から設定値読込
 func LoadConfig() Config {
 	var cfg Config
+	var err error
 
 	cfg.DBHost = os.Getenv("DB_HOST")
 	cfg.DBPort = os.Getenv("DB_PORT")
@@ -29,6 +35,12 @@ func LoadConfig() Config {
 	cfg.SmtpPort = os.Getenv("SMTP_PORT")
 	cfg.From = os.Getenv("FROM_EMAIL")
 	cfg.SecretKey = os.Getenv("SECRET_KEY")
+	cfg.RedisAddr = os.Getenv("REDIS_ADDRESS")
+	cfg.RedisPassword = os.Getenv("REDIS_PASSWORD")
+	cfg.RedisDB, err = strconv.Atoi(os.Getenv("REDIS_DB"))
+	if err != nil {
+		log.Fatalf("Failed to convert REDIS_DB to int: %v", err)
+	}
 
 	return cfg
 }
