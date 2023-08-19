@@ -42,5 +42,13 @@ services:
       - "1025:1025"
       - "1080:1080"
 
+  redis:
+    image: "redis:latest"
+    ports:
+      - "6379:6379"
+    volumes:
+      - "redis_data:/data"
+
 volumes:
   db_data:
+  redis_data:
