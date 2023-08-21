@@ -22,5 +22,6 @@ func (c *Controller) Routes(router *gin.Engine) {
 	api := router.Group("/api")
 	{
 		user.SignupRoutes(api, c.Config)
+		user.LoginRoutes(api, c.Config)
 	}
 }
