@@ -12,7 +12,7 @@ import (
 var dbConn *sql.DB
 
 // DB接続を行う
-func ConnectDB(cfg config.Config) {
+func ConnectDB(cfg config.Config) error {
 	dbinfo := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPassword, cfg.DBName)
@@ -27,6 +27,7 @@ func ConnectDB(cfg config.Config) {
 		log.Fatal(err)
 	}
 	log.Println("DB Connected!")
+	return nil
 }
 
 func DbConn() *sql.DB {

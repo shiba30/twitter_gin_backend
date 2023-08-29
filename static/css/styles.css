@@ -3,11 +3,33 @@ body {
     background-color: #32323c;
 }
 
+.container {
+    max-width: 1400px;
+}
+
 .signup-container {
     background-color: #000;
     padding: 20px;
     margin-top: 50px;
     border-radius: 30px;
+}
+
+.main-container {
+    background-color: #000;
+    height: 100vh;
+}
+
+.main-container > .content {
+    height: 100%;
+}
+
+.sidebar {
+    height: calc(100% - 10%);
+}
+
+nav a {
+    text-decoration: none;
+    color: inherit;
 }
 
 .twwiter-icon {
@@ -17,4 +39,24 @@ body {
 
 .btn-custom {
     width: 100px;
+}
+
+.tweetarea {
+    height: 150px;
+    background: none;
+    border: none;
+}
+
+.upload {
+    width: 40px;
+    height: 40px;
+    background: none;
+    border: none;
+    padding: 0;
+    outline: none;
+}
+
+#selectedImagePreview {
+    max-width: 50%;
+    display: none;
 }

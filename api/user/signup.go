@@ -3,7 +3,6 @@ package user
 import (
 	"database/sql"
 	"log"
-	"net/http"
 	"net/mail"
 	"regexp"
 
@@ -15,8 +14,9 @@ import (
 )
 
 type signupForm struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email       string `json:"email"`
+	Password    string `json:"password"`
+	DisplayName string `json:"displayName"`
 }
 
 func signupHandler(cfg config.Config) gin.HandlerFunc {
@@ -28,13 +28,7 @@ func signupHandler(cfg config.Config) gin.HandlerFunc {
 func SignupRoutes(router *gin.RouterGroup, cfg config.Config) {
 	user := router.Group("/user")
 	{
-		user.GET("/signup", func(c *gin.Context) {
-			c.HTML(http.StatusOK, "signup.html", nil)
-		})
 		user.POST("/signup", signupHandler(cfg))
-		user.GET("/verification", func(c *gin.Context) {
-			c.HTML(http.StatusOK, "verification.html", nil)
-		})
 		user.GET("/verify/:token", activateUser) // 確認メールのリンクが踏まれた時に呼び出される関数
 	}
 }
@@ -109,8 +103,9 @@ func signup(c *gin.Context, cfg config.Config) {
 
 	// ユーザーを作成
 	user, err := queries.CreateUser(c, sqlc.CreateUserParams{
-		Email:    form.Email,
-		Password: string(hash_pwd),
+		Email:       form.Email,
+		Password:    string(hash_pwd),
+		DisplayName: form.DisplayName,
 	})
 	if err != nil {
 		log.Printf("failed to create user: %v", err)

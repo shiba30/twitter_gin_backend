@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"example.com/golang_twitter/api"
-	"example.com/golang_twitter/api/user"
+	"example.com/golang_twitter/api/interfaces"
 	"example.com/golang_twitter/config"
 	"example.com/golang_twitter/db"
 	"github.com/gin-gonic/gin"
@@ -13,14 +13,23 @@ import (
 // Twitter clone by golang(gin)
 func main() {
 	// 環境変数取得
-	cfg := config.LoadConfig()
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		log.Fatalf("failed to load config: %v", err)
+	}
 
 	// DB接続
-	db.ConnectDB(cfg)
+	if err := db.ConnectDB(cfg); err != nil {
+		log.Fatalf("failed to connect to DB: %v", err)
+	}
 	defer db.DbConn().Close()
 
 	// Redis接続を初期化
-	user.InitializeRedis(cfg)
+	redisConn := interfaces.InitializeRedis(cfg)
+	if err != nil {
+		log.Fatalf("failed to initialize Redis: %v", err)
+	}
+	defer redisConn.Close()
 
 	router := gin.Default()
 
@@ -31,9 +40,9 @@ func main() {
 		c.IndentedJSON(200, gin.H{"status": "ok"})
 	})
 
-	controller := api.NewController(cfg)
+	controller := api.NewController(cfg, redisConn)
 	controller.Routes(router)
 
 	log.Println("Server started!")
-	router.Run("0.0.0.0:8080")
+	router.Run(cfg.ServerAddress)
 }

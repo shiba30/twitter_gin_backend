@@ -35,7 +35,7 @@ type GetUserInfoRow struct {
 	Email            string         `json:"email"`
 	Password         string         `json:"password"`
 	PhoneNumber      sql.NullString `json:"phone_number"`
-	DisplayName      sql.NullString `json:"display_name"`
+	DisplayName      string         `json:"display_name"`
 	SelfIntroduction sql.NullString `json:"self_introduction"`
 	Location         sql.NullString `json:"location"`
 	Website          sql.NullString `json:"website"`

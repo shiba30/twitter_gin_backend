@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     phone_number VARCHAR(255) UNIQUE,
-    display_name VARCHAR(50),
+    display_name VARCHAR(50) NOT NULL,
     self_introduction TEXT,
     location VARCHAR(255),
     website VARCHAR(255),

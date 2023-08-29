@@ -1,12 +1,14 @@
 package config
 
 import (
-	"log"
+	"errors"
+	"fmt"
 	"os"
 	"strconv"
 )
 
 type Config struct {
+	ServerAddress string
 	DBHost        string
 	DBPort        string
 	DBUser        string
@@ -22,25 +24,59 @@ type Config struct {
 }
 
 // 環境変数から設定値読込
-func LoadConfig() Config {
+func LoadConfig() (Config, error) {
 	var cfg Config
-	var err error
 
+	cfg.ServerAddress = os.Getenv("SERVER_ADDRESS")
+	if cfg.ServerAddress == "" {
+		return cfg, errors.New("SERVER_ADDRESS is not set")
+	}
 	cfg.DBHost = os.Getenv("DB_HOST")
+	if cfg.DBHost == "" {
+		return cfg, errors.New("DB_HOST is not set")
+	}
 	cfg.DBPort = os.Getenv("DB_PORT")
+	if cfg.DBPort == "" {
+		return cfg, errors.New("DB_PORT is not set")
+	}
 	cfg.DBUser = os.Getenv("DB_USER")
+	if cfg.DBUser == "" {
+		return cfg, errors.New("DB_USER is not set")
+	}
 	cfg.DBPassword = os.Getenv("DB_PASSWORD")
+	if cfg.DBPassword == "" {
+		return cfg, errors.New("DB_PASSWORD is not set")
+	}
 	cfg.DBName = os.Getenv("DB_NAME")
+	if cfg.DBName == "" {
+		return cfg, errors.New("DB_NAME is not set")
+	}
 	cfg.SmtpHost = os.Getenv("SMTP_HOST")
+	if cfg.SmtpHost == "" {
+		return cfg, errors.New("SMTP_HOST is not set")
+	}
 	cfg.SmtpPort = os.Getenv("SMTP_PORT")
+	if cfg.SmtpPort == "" {
+		return cfg, errors.New("SMTP_PORT is not set")
+	}
 	cfg.From = os.Getenv("FROM_EMAIL")
+	if cfg.From == "" {
+		return cfg, errors.New("FROM_EMAIL is not set")
+	}
 	cfg.SecretKey = os.Getenv("SECRET_KEY")
+	if cfg.SecretKey == "" {
+		return cfg, errors.New("SECRET_KEY is not set")
+	}
 	cfg.RedisAddr = os.Getenv("REDIS_ADDRESS")
+	if cfg.RedisAddr == "" {
+		return cfg, errors.New("REDIS_ADDRESS is not set")
+	}
 	cfg.RedisPassword = os.Getenv("REDIS_PASSWORD")
+	var err error
 	cfg.RedisDB, err = strconv.Atoi(os.Getenv("REDIS_DB"))
 	if err != nil {
-		log.Fatalf("Failed to convert REDIS_DB to int: %v", err)
+		return cfg, fmt.Errorf("failed to convert REDIS_DB to int: %v", err)
 	}
 
-	return cfg
+	return cfg, nil
 }
