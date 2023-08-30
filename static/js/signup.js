@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
+        const displayName = document.getElementById('displayName').value;
 
         const xhr = new XMLHttpRequest();
         xhr.open('POST', '/api/user/signup', true);  // エンドポイント設定
@@ -24,7 +25,7 @@ document.addEventListener("DOMContentLoaded", function () {
             alert('入力された情報では登録することができません');
         };
 
-        const data = JSON.stringify({ email: email, password: password });
+        const data = JSON.stringify({ email: email, password: password, displayName: displayName});
 
         xhr.send(data);
     });

@@ -84,5 +84,5 @@ func activateUser(c *gin.Context) {
 	}
 
 	log.Printf("activated user: %v", userId)
-	c.JSON(200, gin.H{"status": "ユーザーがアクティブになりました"}) // TODO ログイン画面に遷移する
+	c.Redirect(303, "/api/user/login")
 }

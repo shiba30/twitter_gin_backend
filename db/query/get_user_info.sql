@@ -15,4 +15,4 @@ SELECT
 FROM
     users
 WHERE
-    email = $1;
+    id = $1;

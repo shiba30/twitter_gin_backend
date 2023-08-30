@@ -13,7 +13,8 @@ const getUserByEmail = `-- name: GetUserByEmail :one
 SELECT
     id,
     email,
-    password
+    password,
+    is_active
 FROM
     users
 WHERE
@@ -24,11 +25,17 @@ type GetUserByEmailRow struct {
 	ID       int64  `json:"id"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
+	IsActive bool   `json:"is_active"`
 }
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email string) (GetUserByEmailRow, error) {
 	row := q.queryRow(ctx, q.getUserByEmailStmt, getUserByEmail, email)
 	var i GetUserByEmailRow
-	err := row.Scan(&i.ID, &i.Email, &i.Password)
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.Password,
+		&i.IsActive,
+	)
 	return i, err
 }

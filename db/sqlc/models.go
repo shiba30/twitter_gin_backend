@@ -9,12 +9,21 @@ import (
 	"time"
 )
 
+type Tweet struct {
+	ID        int64          `json:"id"`
+	UserID    int64          `json:"user_id"`
+	Content   string         `json:"content"`
+	ImagePath sql.NullString `json:"image_path"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+}
+
 type User struct {
 	ID               int64          `json:"id"`
 	Email            string         `json:"email"`
 	Password         string         `json:"password"`
 	PhoneNumber      sql.NullString `json:"phone_number"`
-	DisplayName      sql.NullString `json:"display_name"`
+	DisplayName      string         `json:"display_name"`
 	SelfIntroduction sql.NullString `json:"self_introduction"`
 	Location         sql.NullString `json:"location"`
 	Website          sql.NullString `json:"website"`

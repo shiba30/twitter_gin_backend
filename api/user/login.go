@@ -2,13 +2,12 @@ package user
 
 import (
 	"log"
-	"net/http"
 
+	"example.com/golang_twitter/api/interfaces"
 	"example.com/golang_twitter/config"
 	db "example.com/golang_twitter/db"
 	sqlc "example.com/golang_twitter/db/sqlc"
 	"github.com/gin-gonic/gin"
-	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -18,47 +17,17 @@ type loginForm struct {
 	Password string `json:"password"`
 }
 
-func LoginRoutes(router *gin.RouterGroup, cfg config.Config) {
+func LoginRoutes(router *gin.RouterGroup, cfg config.Config, redisConn *interfaces.RedisConn) {
 	user := router.Group("/user")
 	{
-		user.GET("/login", func(c *gin.Context) {
-			c.HTML(http.StatusOK, "login.html", nil)
-		})
 		user.POST("/login", func(c *gin.Context) {
-			login(c)
-		})
-		user.GET("/home", AuthRequired(), func(c *gin.Context) {
-			c.HTML(http.StatusOK, "home.html", nil)
+			login(c, cfg, redisConn)
 		})
 	}
-}
-
-func AuthRequired() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		sessionID, err := c.Cookie("session_id")
-		if err != nil || sessionID == "" {
-			// ログイン認証していない場合、login.htmlにリダイレクト
-			c.Redirect(http.StatusSeeOther, "/api/user/login")
-			c.Abort()
-			return
-		}
-		c.Next()
-	}
-}
-
-var redisConn *redis.Client
-
-func InitializeRedis(cfg config.Config) {
-
-	redisConn = redis.NewClient(&redis.Options{
-		Addr:     cfg.RedisAddr,
-		Password: cfg.RedisPassword,
-		DB:       cfg.RedisDB,
-	})
 }
 
 // ログイン機能
-func login(c *gin.Context) {
+func login(c *gin.Context, cfg config.Config, redisConn *interfaces.RedisConn) {
 	var form loginForm
 
 	// リクエストデータの確認
@@ -68,13 +37,10 @@ func login(c *gin.Context) {
 		return
 	}
 
+	// ユーザ情報取得
 	// sqlcのQueriesオブジェクトを初期化
 	queries := sqlc.New(db.DbConn())
-
-	// ユーザ情報取得
-	log.Printf("Email to find: %s", form.Email)
-
-	userInfo, err := queries.GetUserInfo(c, form.Email)
+	userInfo, err := queries.GetUserByEmail(c, form.Email)
 	if err != nil {
 		log.Printf("failed to get user info: %v", err)
 		c.JSON(401, gin.H{"error": "ログイン認証に失敗しました"})
@@ -101,7 +67,7 @@ func login(c *gin.Context) {
 
 	// redisにsession情報を保存
 	// セッション有効期限:0(無期限)
-	err = redisConn.Set(c, sessionID, userInfo.ID, 0).Err()
+	err = redisConn.SetSession(c, sessionID, userInfo.ID, 0)
 	if err != nil {
 		log.Printf("failed to set session information: %v", err)
 		c.JSON(500, gin.H{"error": "内部エラーが発生しました"})

@@ -9,18 +9,91 @@
 
 <body>
     <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="signup-container">
-                    <div class="d-flex flex-row justify-content-center">
-                        <img src="/static/img/twitter.png" width="80" height="80">
-                        <h1 class="text-center mt-3">Home</h1>
+        <div class="main-container pt-3 pr-5 pl-5">
+            <div class="d-flex flex-row justify-content-left border-bottom">
+                <img src="/static/img/twitter.png" width="80" height="80">
+                <h1 class="text-center mt-3">Twitter Clone</h1>
+            </div>
+            <div class="content d-flex flex-row">
+                <div class="col-md-3 border-right sidebar d-flex flex-column justify-content-between">
+                    <nav>
+                        <a href="#">
+                            <div class="d-flex flex-row pt-5">
+                                <img src="/static/img/home.png" width="30" height="30">
+                                <div class="pl-4 h4">Home</div>
+                            </div>
+                        </a>
+                        <a href="/explore">
+                            <div class="d-flex flex-row pt-5">
+                                <img src="/static/img/explore.png" width="30" height="30">
+                                <div class="pl-4 h4">Explore</div>
+                            </div>
+                        </a>
+                        <a href="/notifications">
+                            <div class="d-flex flex-row pt-5">
+                                <img src="/static/img/notifications.png" width="30" height="30">
+                                <div class="pl-4 h4">Notifications</div>
+                            </div>
+                        </a>
+                        <a href="/message">
+                            <div class="d-flex flex-row pt-5">
+                                <img src="/static/img/message.png" width="30" height="30">
+                                <div class="pl-4 h4">Message</div>
+                            </div>
+                        </a>
+                        <a href="/bookmarks">
+                            <div class="d-flex flex-row pt-5">
+                                <img src="/static/img/bookmarks.png" width="30" height="30">
+                                <div class="pl-4 h4">Bookmarks</div>
+                            </div>
+                        </a>
+                        <a href="/profile">
+                            <div class="d-flex flex-row pt-5">
+                                <img src="/static/img/profile.png" width="30" height="30">
+                                <div class="pl-4 h4">Profile</div>
+                            </div>
+                        </a>
+                    </nav>
+                    <div class="d-flex flex-row justify-content-left">
+                        <img src="{{ .avatarImage }}" width="50" height="50">
+                        <span class="pl-2 pt-2">{{.displayName}}</span>
+                    </div>
+                </div>
+
+                <div class="col-md-9 pl-0 pr-0">
+                    <h2 class="m-3">Home</h2>
+                    <div class="border-bottom d-flex flex-row">
+                        <div class="col-1">
+                            <img src="{{ .avatarImage }}" width="50" height="50">
+                        </div>
+                        <div class="col-11">
+                            <form id="tweetForm" class="m-3" data-user-id="{{ .userId }}" enctype="multipart/form-data">
+                                <div class="form-group">
+                                    <textarea id="tweetContent" class="tweetarea form-control" maxlength="140"
+                                        placeholder="What is happening?!"></textarea>
+                                </div>
+
+                                <!-- 画像プレビュー -->
+                                <div class="image-preview mt-3 mb-3 d-flex align-items-center justify-content-center">
+                                    <img id="selectedImagePreview" src="#" alt="Selected Image">
+                                </div>
+
+                                <hr color="#fff" width="800">
+                                <!-- ファイルアップロード -->
+                                <input type="file" id="uploadImage" style="display:none;">
+                                <button type="button" class="upload rounded-circle justify-content-center"
+                                    onclick="document.getElementById('uploadImage').click();">
+                                    <img src="/static/img/image.png" width="25" height="25">
+                                </button>
+                                <button type="submit"
+                                    class="btn btn-primary float-right mb-3 rounded-pill btn-custom">Post</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <script src="/static/js/login.js"></script>
+        <script src="/static/js/tweet.js"></script>
 </body>
 
 </html>
