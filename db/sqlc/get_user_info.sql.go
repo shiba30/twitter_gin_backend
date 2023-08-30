@@ -27,7 +27,7 @@ SELECT
 FROM
     users
 WHERE
-    email = $1
+    id = $1
 `
 
 type GetUserInfoRow struct {
@@ -45,8 +45,8 @@ type GetUserInfoRow struct {
 	IsActive         bool           `json:"is_active"`
 }
 
-func (q *Queries) GetUserInfo(ctx context.Context, email string) (GetUserInfoRow, error) {
-	row := q.queryRow(ctx, q.getUserInfoStmt, getUserInfo, email)
+func (q *Queries) GetUserInfo(ctx context.Context, id int64) (GetUserInfoRow, error) {
+	row := q.queryRow(ctx, q.getUserInfoStmt, getUserInfo, id)
 	var i GetUserInfoRow
 	err := row.Scan(
 		&i.ID,

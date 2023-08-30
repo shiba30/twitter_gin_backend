@@ -40,7 +40,7 @@ func login(c *gin.Context, cfg config.Config, redisConn *interfaces.RedisConn) {
 	// ユーザ情報取得
 	// sqlcのQueriesオブジェクトを初期化
 	queries := sqlc.New(db.DbConn())
-	userInfo, err := queries.GetUserInfo(c, form.Email)
+	userInfo, err := queries.GetUserByEmail(c, form.Email)
 	if err != nil {
 		log.Printf("failed to get user info: %v", err)
 		c.JSON(401, gin.H{"error": "ログイン認証に失敗しました"})
@@ -67,7 +67,7 @@ func login(c *gin.Context, cfg config.Config, redisConn *interfaces.RedisConn) {
 
 	// redisにsession情報を保存
 	// セッション有効期限:0(無期限)
-	err = redisConn.SetSession(sessionID, form.Email, 0)
+	err = redisConn.SetSession(c, sessionID, userInfo.ID, 0)
 	if err != nil {
 		log.Printf("failed to set session information: %v", err)
 		c.JSON(500, gin.H{"error": "内部エラーが発生しました"})

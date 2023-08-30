@@ -5,6 +5,7 @@ import (
 
 	"example.com/golang_twitter/api"
 	"example.com/golang_twitter/api/interfaces"
+	"example.com/golang_twitter/api/middleware"
 	"example.com/golang_twitter/config"
 	"example.com/golang_twitter/db"
 	"github.com/gin-gonic/gin"
@@ -25,13 +26,16 @@ func main() {
 	defer db.DbConn().Close()
 
 	// Redis接続を初期化
-	redisConn := interfaces.InitializeRedis(cfg)
+	redisConn := interfaces.NewRedisConn(cfg)
 	if err != nil {
 		log.Fatalf("failed to initialize Redis: %v", err)
 	}
 	defer redisConn.Close()
 
 	router := gin.Default()
+
+	// redisConnを全てのルートで使用
+	router.Use(middleware.RedisMiddleware(redisConn))
 
 	router.Static("/static", "./static")
 	router.LoadHTMLGlob("templates/*")

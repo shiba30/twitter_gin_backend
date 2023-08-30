@@ -2,7 +2,8 @@
 SELECT
     id,
     email,
-    password
+    password,
+    is_active
 FROM
     users
 WHERE

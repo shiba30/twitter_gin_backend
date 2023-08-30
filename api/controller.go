@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"example.com/golang_twitter/api/interfaces"
+	"example.com/golang_twitter/api/middleware"
 	"example.com/golang_twitter/api/tweet"
 	"example.com/golang_twitter/api/user"
 	"example.com/golang_twitter/config"
@@ -45,7 +46,7 @@ func (c *Controller) Routes(router *gin.Engine) {
 	api.GET("/user/login", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "login.html", nil)
 	})
-	api.GET("/user/home", func(ctx *gin.Context) {
+	api.GET("/user/home", middleware.AuthRequired(), func(ctx *gin.Context) {
 		user.ShowHome(ctx, c.RedisConn)
 	})
 }

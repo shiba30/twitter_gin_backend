@@ -11,6 +11,7 @@ import (
 	"example.com/golang_twitter/api/middleware"
 	"example.com/golang_twitter/db"
 	sqlc "example.com/golang_twitter/db/sqlc"
+	"example.com/golang_twitter/util"
 	"github.com/gin-gonic/gin"
 )
 
@@ -47,6 +48,20 @@ func postTweet(c *gin.Context) {
 		return
 	}
 
+	// セッションからユーザー情報を取得
+	sessionID, err := c.Cookie("session_id")
+	if err != nil {
+		log.Printf("Failed to retrieve session ID: %v", err)
+		c.JSON(500, gin.H{"error": "セッションIDの取得に失敗しました"})
+		return
+	}
+	userId, err := util.GetSessionUserId(c, sessionID)
+	if err != nil {
+		log.Printf("Failed to retrieve userId from session: %v", err)
+		c.JSON(500, gin.H{"error": "セッションからユーザー情報の取得に失敗しました"})
+		return
+	}
+
 	// Base64画像データのデコード (もし画像がある場合)
 	var imagePath sql.NullString
 	if form.Image != "" {
@@ -80,8 +95,8 @@ func postTweet(c *gin.Context) {
 	// ツイート保存処理
 	// sqlcのQueriesオブジェクトを初期化
 	queries := sqlc.New(db.DbConn())
-	_, err := queries.InsertTweet(c, sqlc.InsertTweetParams{
-		UserID:    form.UserId,
+	_, err = queries.InsertTweet(c, sqlc.InsertTweetParams{
+		UserID:    userId,
 		Content:   form.Content,
 		ImagePath: imagePath,
 	})
