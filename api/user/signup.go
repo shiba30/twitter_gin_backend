@@ -53,7 +53,7 @@ func validatePassword(pwd string) bool {
 
 // サインアップ機能
 func signup(c *gin.Context, cfg config.Config) {
-	var form signupForm
+	form := signupForm{}
 
 	// フォーム値チェック
 	if err := c.BindJSON(&form); err != nil {

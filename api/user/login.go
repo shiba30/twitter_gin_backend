@@ -28,7 +28,7 @@ func LoginRoutes(router *gin.RouterGroup, cfg config.Config, redisConn *interfac
 
 // ログイン機能
 func login(c *gin.Context, cfg config.Config, redisConn *interfaces.RedisConn) {
-	var form loginForm
+	form := loginForm{}
 
 	// リクエストデータの確認
 	if err := c.ShouldBindJSON(&form); err != nil {

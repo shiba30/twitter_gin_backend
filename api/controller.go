@@ -33,7 +33,7 @@ func (c *Controller) Routes(router *gin.Engine) {
 	{
 		user.SignupRoutes(api, c.Config)
 		user.LoginRoutes(api, c.Config, c.RedisConn)
-		tweet.TweetRoutes(api)
+		tweet.TweetRoutes(api, c.Config)
 	}
 
 	// ページレンダリングのルーティング

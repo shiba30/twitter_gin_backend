@@ -3,30 +3,49 @@ package config
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"os"
 	"strconv"
+
+	"gopkg.in/yaml.v2"
 )
 
 type Config struct {
-	ServerAddress string
-	DBHost        string
-	DBPort        string
-	DBUser        string
-	DBPassword    string
-	DBName        string
-	SmtpHost      string
-	SmtpPort      string
-	From          string
-	SecretKey     string
-	RedisAddr     string
-	RedisPassword string
-	RedisDB       int
+	ServerAddress     string
+	DBHost            string
+	DBPort            string
+	DBUser            string
+	DBPassword        string
+	DBName            string
+	SmtpHost          string
+	SmtpPort          string
+	From              string
+	SecretKey         string
+	RedisAddr         string
+	RedisPassword     string
+	RedisDB           int
+	UploadedImagesDir string `yaml:"uploaded_images_dir"`
+	DefaultPageSize   string `yaml:"defaultPageSize"`
 }
 
-// 環境変数から設定値読込
+const config_dir = "config/config.yaml"
+
+// 設定値読込
 func LoadConfig() (Config, error) {
 	var cfg Config
 
+	// config.yml
+	data, err := ioutil.ReadFile(config_dir)
+	if err != nil {
+		log.Fatalf("failed to load config: %v", err)
+	}
+	err = yaml.Unmarshal(data, &cfg)
+	if err != nil {
+		log.Fatalf("failed to unmarshal yaml data: %v", err)
+	}
+
+	// 環境変数
 	cfg.ServerAddress = os.Getenv("SERVER_ADDRESS")
 	if cfg.ServerAddress == "" {
 		return cfg, errors.New("SERVER_ADDRESS is not set")
@@ -72,7 +91,6 @@ func LoadConfig() (Config, error) {
 		return cfg, errors.New("REDIS_ADDRESS is not set")
 	}
 	cfg.RedisPassword = os.Getenv("REDIS_PASSWORD")
-	var err error
 	cfg.RedisDB, err = strconv.Atoi(os.Getenv("REDIS_DB"))
 	if err != nil {
 		return cfg, fmt.Errorf("failed to convert REDIS_DB to int: %v", err)
