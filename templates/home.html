@@ -15,52 +15,55 @@
                 <h1 class="text-center mt-3">Twitter Clone</h1>
             </div>
             <div class="content d-flex flex-row">
-                <div class="col-md-3 border-right sidebar d-flex flex-column justify-content-between">
-                    <nav>
-                        <a href="#">
-                            <div class="d-flex flex-row pt-5">
-                                <img src="/static/img/home.png" width="30" height="30">
-                                <div class="pl-4 h4">Home</div>
-                            </div>
-                        </a>
-                        <a href="/explore">
-                            <div class="d-flex flex-row pt-5">
-                                <img src="/static/img/explore.png" width="30" height="30">
-                                <div class="pl-4 h4">Explore</div>
-                            </div>
-                        </a>
-                        <a href="/notifications">
-                            <div class="d-flex flex-row pt-5">
-                                <img src="/static/img/notifications.png" width="30" height="30">
-                                <div class="pl-4 h4">Notifications</div>
-                            </div>
-                        </a>
-                        <a href="/message">
-                            <div class="d-flex flex-row pt-5">
-                                <img src="/static/img/message.png" width="30" height="30">
-                                <div class="pl-4 h4">Message</div>
-                            </div>
-                        </a>
-                        <a href="/bookmarks">
-                            <div class="d-flex flex-row pt-5">
-                                <img src="/static/img/bookmarks.png" width="30" height="30">
-                                <div class="pl-4 h4">Bookmarks</div>
-                            </div>
-                        </a>
-                        <a href="/profile">
-                            <div class="d-flex flex-row pt-5">
-                                <img src="/static/img/profile.png" width="30" height="30">
-                                <div class="pl-4 h4">Profile</div>
-                            </div>
-                        </a>
-                    </nav>
-                    <div class="d-flex flex-row justify-content-left">
-                        <img src="{{ .avatarImage }}" width="50" height="50">
-                        <span class="pl-2 pt-2">{{.displayName}}</span>
+                <div class="col-md-3 sidebar d-flex flex-column">
+                    <div class="d-flex flex-column justify-content-between" style="height: 100%;">
+                        <nav>
+                            <a href="#">
+                                <div class="d-flex flex-row pt-5">
+                                    <img src="/static/img/home.png" width="30" height="30">
+                                    <div class="pl-4 h4">Home</div>
+                                </div>
+                            </a>
+                            <a href="/explore">
+                                <div class="d-flex flex-row pt-5">
+                                    <img src="/static/img/explore.png" width="30" height="30">
+                                    <div class="pl-4 h4">Explore</div>
+                                </div>
+                            </a>
+                            <a href="/notifications">
+                                <div class="d-flex flex-row pt-5">
+                                    <img src="/static/img/notifications.png" width="30" height="30">
+                                    <div class="pl-4 h4">Notifications</div>
+                                </div>
+                            </a>
+                            <a href="/message">
+                                <div class="d-flex flex-row pt-5">
+                                    <img src="/static/img/message.png" width="30" height="30">
+                                    <div class="pl-4 h4">Message</div>
+                                </div>
+                            </a>
+                            <a href="/bookmarks">
+                                <div class="d-flex flex-row pt-5">
+                                    <img src="/static/img/bookmarks.png" width="30" height="30">
+                                    <div class="pl-4 h4">Bookmarks</div>
+                                </div>
+                            </a>
+                            <a href="/profile">
+                                <div class="d-flex flex-row pt-5">
+                                    <img src="/static/img/profile.png" width="30" height="30">
+                                    <div class="pl-4 h4">Profile</div>
+                                </div>
+                            </a>
+                        </nav>
+
+                        <div class="d-flex flex-row justify-content-left">
+                            <img src="{{ .avatarImage }}" width="50" height="50">
+                            <span class="pl-2 pt-2">{{.displayName}}</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="col-md-9 pl-0 pr-0">
+                <div class="col-md-9 border-left pl-0 pr-0">
                     <h2 class="m-3">Home</h2>
                     <div class="border-bottom d-flex flex-row">
                         <div class="col-1">
@@ -70,7 +73,7 @@
                             <form id="tweetForm" class="m-3" data-user-id="{{ .userId }}" enctype="multipart/form-data">
                                 <div class="form-group">
                                     <textarea id="tweetContent" class="tweetarea form-control" maxlength="140"
-                                        placeholder="What is happening?!"></textarea>
+                                        placeholder="What is happening?!" style="background-color: #fff;"></textarea>
                                 </div>
 
                                 <!-- 画像プレビュー -->
@@ -89,6 +92,42 @@
                                     class="btn btn-primary float-right mb-3 rounded-pill btn-custom">Post</button>
                             </form>
                         </div>
+                    </div>
+
+                    <div>
+                        {{ range .tweets }}
+                        <div class=" border-bottom d-flex flex-row m-3">
+                            <div class="pr-3">
+                                {{ if .UserImage.Valid }}
+                                <img src="{{ .UserImage.String }}" width="50" height="50">
+                                {{ else }}
+                                <img src="{{ $.avatarImage }}" width="50" height="50">
+                                {{ end }}
+                            </div>
+                            <div>
+                                <div>
+                                    {{ .UserName }}
+                                </div>
+                                <div>
+                                    {{ .TweetContent }}
+                                </div>
+                                {{ if .ImagePath.Valid }}
+                                <div>
+                                    <img src="/{{ .ImagePath.String }}" width="50" height="50">
+                                </div>
+                                {{ end }}
+                                <div class="mb-3">
+                                    <!-- TODO Reply,Retweet,Likes area -->
+                                </div>
+                            </div>
+                        </div>
+                        {{ end }}
+                    </div>
+
+                    <div class="d-flex justify-content-center align-items-center mb-3">
+                        <button id="prevPage" class="btn btn-secondary m-2">前のページ</button>
+                        <span id="currentPage">1</span>
+                        <button id="nextPage" class="btn btn-secondary m-2">次のページ</button>
                     </div>
                 </div>
             </div>

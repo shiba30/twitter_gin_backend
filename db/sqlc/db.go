@@ -27,6 +27,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.createUserStmt, err = db.PrepareContext(ctx, createUser); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateUser: %w", err)
 	}
+	if q.getTweetsStmt, err = db.PrepareContext(ctx, getTweets); err != nil {
+		return nil, fmt.Errorf("error preparing query GetTweets: %w", err)
+	}
 	if q.getUserByActivationTokenStmt, err = db.PrepareContext(ctx, getUserByActivationToken); err != nil {
 		return nil, fmt.Errorf("error preparing query GetUserByActivationToken: %w", err)
 	}
@@ -50,6 +53,11 @@ func (q *Queries) Close() error {
 	if q.createUserStmt != nil {
 		if cerr := q.createUserStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing createUserStmt: %w", cerr)
+		}
+	}
+	if q.getTweetsStmt != nil {
+		if cerr := q.getTweetsStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getTweetsStmt: %w", cerr)
 		}
 	}
 	if q.getUserByActivationTokenStmt != nil {
@@ -117,6 +125,7 @@ type Queries struct {
 	db                           DBTX
 	tx                           *sql.Tx
 	createUserStmt               *sql.Stmt
+	getTweetsStmt                *sql.Stmt
 	getUserByActivationTokenStmt *sql.Stmt
 	getUserByEmailStmt           *sql.Stmt
 	getUserInfoStmt              *sql.Stmt
@@ -129,6 +138,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		db:                           tx,
 		tx:                           tx,
 		createUserStmt:               q.createUserStmt,
+		getTweetsStmt:                q.getTweetsStmt,
 		getUserByActivationTokenStmt: q.getUserByActivationTokenStmt,
 		getUserByEmailStmt:           q.getUserByEmailStmt,
 		getUserInfoStmt:              q.getUserInfoStmt,

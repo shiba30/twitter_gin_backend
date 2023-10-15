@@ -1,2 +1,2 @@
-uploaded_images_dir: "uploaded_images/" # 暫定対応：外部ストレージを使用する想定
-defaultPageSize: "20"
+uploaded_images_dir: "static/img/uploaded_images/" # 暫定対応：外部ストレージを使用する想定
+defaultPageSize: "10"

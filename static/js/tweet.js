@@ -50,6 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // ツイート処理
     function sendRequest(data) {
         fetch('/api/tweet/post', {
             method: 'POST',
@@ -72,6 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 tweetContent.value = '';
                 imagePreview.src = '';
                 imagePreview.style.display = 'none';
+                window.location.reload(true);
             } else {
                 alert('ツイート失敗');
             }
@@ -85,4 +87,102 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // ページネーション
+    let currentPage = 1;
+    // 初回ページロード時に1ページ目のツイートを取得
+    loadTweets(currentPage);
+
+    // ボタンのイベントリスナーを設定
+    document.getElementById('nextPage').addEventListener('click', function() {
+        console.log("aaaaa");
+        currentPage += 1;
+        loadTweets(currentPage);
+    });
+
+    document.getElementById('prevPage').addEventListener('click', function() {
+        if (currentPage > 1) {
+            currentPage -= 1;
+            loadTweets(currentPage);
+        }
+    });
+
+    function loadTweets(page) {
+        fetch(`../tweet/tweets?page=${page}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            const avatarImagePath = "/static/img/default_avatar.png";
+            updateTweets(data, avatarImagePath);
+            document.getElementById('currentPage').innerText = page;
+        })
+        .catch(error => {
+            console.error("Error fetching tweets:", error);
+        });
+    }
+    
+    function updateTweets(tweets, avatarImage) {
+        const tweetContainer = document.querySelector('.col-md-9 > div:nth-child(3)');
+        tweetContainer.innerHTML = '';  // 既存のツイートをクリア
+    
+        tweets.forEach(tweet => {
+            const tweetElement = document.createElement('div');
+            tweetElement.className = 'border-bottom d-flex flex-row m-3';
+    
+            const avatarDiv = document.createElement('div');
+            avatarDiv.className = 'pr-3';
+    
+            const userImage = tweet.user_image && tweet.user_image.Valid ? tweet.user_image.String : avatarImage;
+            const avatarImg = document.createElement('img');
+            avatarImg.src = userImage;
+            avatarImg.width = 50;
+            avatarImg.height = 50;
+    
+            avatarDiv.appendChild(avatarImg);
+            tweetElement.appendChild(avatarDiv);
+    
+            const contentDiv = document.createElement('div');
+            const userNameDiv = document.createElement('div');
+            userNameDiv.innerText = tweet.user_name;
+            userNameDiv.style.marginBottom = '15px';
+            
+            const tweetContentDiv = document.createElement('div');
+            tweetContentDiv.innerText = tweet.tweet_content;
+            tweetContentDiv.style.marginBottom = '15px';
+            
+            contentDiv.appendChild(userNameDiv);
+            contentDiv.appendChild(tweetContentDiv);
+    
+            if (tweet.image_path && tweet.image_path.Valid) {
+                const imageContainer = document.createElement('div');
+                imageContainer.className = 'justify-content-center';
+                
+                const tweetImage = document.createElement('img');
+                tweetImage.src = '/' + tweet.image_path.String;
+                tweetImage.style.width = "100%";
+                tweetImage.style.height = "100%";
+                tweetImage.style.objectFit = "cover";
+                tweetImage.style.border = "0.2px solid #ddd";
+                
+                imageContainer.appendChild(tweetImage);
+                contentDiv.appendChild(imageContainer);
+            }
+    
+            const todoDiv = document.createElement('div');
+            todoDiv.className = 'mb-3';
+            // TODO: Reply, Retweet, Likes area の実装
+            contentDiv.appendChild(todoDiv);
+    
+            tweetElement.appendChild(contentDiv);
+            tweetContainer.appendChild(tweetElement);
+        });
+    }    
+
+    // 初期ロード時に1ページ目のツイートをロード
+    loadTweets(1);
+
 });
