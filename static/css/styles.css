@@ -1,6 +1,7 @@
 body {
     color: #fff;
     background-color: #32323c;
+    height: 100vh;
 }
 
 .container {
@@ -16,7 +17,7 @@ body {
 
 .main-container {
     background-color: #000;
-    height: 100vh;
+    min-height: 100vh;
 }
 
 .main-container > .content {
@@ -25,7 +26,7 @@ body {
 
 .sidebar {
     max-width: 250px;
-    height: calc(100% - 15%);
+    height: 600px;
 }
 
 nav a {

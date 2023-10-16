@@ -47,6 +47,6 @@ func (c *Controller) Routes(router *gin.Engine) {
 		c.HTML(http.StatusOK, "login.html", nil)
 	})
 	api.GET("/user/home", middleware.AuthRequired(), func(ctx *gin.Context) {
-		user.ShowHome(ctx, c.RedisConn)
+		user.ShowHome(ctx, c.RedisConn, c.Config)
 	})
 }
