@@ -1,18 +1,16 @@
--- name: GetTweets :many
-SELECT 
-    users.display_name AS user_name,
+-- name: GetTweetDetail :one
+SELECT
+    users.id,
+    users.display_name,
     users.profile_image AS user_image,
+    users.avatar_image AS avatar_image,
     tweets.id AS tweet_id,
     tweets.content AS tweet_content,
     tweets.image_path AS image_path,
     tweets.created_at AS tweet_date
-FROM 
+FROM
     tweets
-JOIN 
+JOIN
     users ON tweets.user_id = users.id
 WHERE
-    tweets.reply_to IS NULL
-ORDER BY
-    tweets.created_at DESC
-LIMIT
-    $1 OFFSET $2;
+    tweets.id = $1;

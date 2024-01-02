@@ -43,7 +43,7 @@ func sendActivationEmail(cfg config.Config, user sqlc.CreateUserRow, activationT
 		"\r\n" +
 		"ユーザ登録が完了しました!\r\n" +
 		"下記のリンクをクリックしてメールアドレスを確認してください。\r\n" +
-		"http://localhost:8080/api/user/verify/" + activationToken + "\r\n"
+		"http://localhost:8080/verify/" + activationToken + "\r\n"
 
 	err := smtp.SendMail(cfg.SmtpHost+":"+cfg.SmtpPort, nil, cfg.From, []string{to}, []byte(body))
 	if err != nil {
@@ -84,5 +84,5 @@ func activateUser(c *gin.Context) {
 	}
 
 	log.Printf("activated user: %v", userId)
-	c.Redirect(303, "/api/user/login")
+	c.Redirect(303, "/login")
 }

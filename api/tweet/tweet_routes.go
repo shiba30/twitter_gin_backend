@@ -9,7 +9,8 @@ import (
 func TweetRoutes(router *gin.RouterGroup, cfg config.Config) {
 	tweet := router.Group("/tweet")
 	{
-		tweet.POST("/post", middleware.AuthRequired(), postTweet(cfg))        // ツイート投稿機能
-		tweet.GET("/tweets", middleware.AuthRequired(), GetTweetsAsJSON(cfg)) // ページネーション用のツイートリスト取得
+		tweet.POST("/post", middleware.AuthRequired(), postTweet(cfg))            // ツイート投稿機能
+		tweet.GET("/tweets", middleware.AuthRequired(), GetTweetsAsJSON(cfg))     // ページネーション用のツイートリスト取得機能
+		tweet.GET("/details/:id", middleware.AuthRequired(), GetTweetDetail(cfg)) // ツイート詳細取得機能
 	}
 }

@@ -1,0 +1,47 @@
+<div class="col-md-3 sidebar d-flex flex-column">
+    <div class="d-flex flex-column justify-content-between" style="height: 100%;">
+        <nav>
+            <a href="/home">
+                <div class="d-flex flex-row pt-5">
+                    <img src="/static/img/home.png" width="30" height="30">
+                    <div class="pl-4 h4">Home</div>
+                </div>
+            </a>
+            <a href="/explore">
+                <div class="d-flex flex-row pt-5">
+                    <img src="/static/img/explore.png" width="30" height="30">
+                    <div class="pl-4 h4">Explore</div>
+                </div>
+            </a>
+            <a href="/notifications">
+                <div class="d-flex flex-row pt-5">
+                    <img src="/static/img/notifications.png" width="30" height="30">
+                    <div class="pl-4 h4">Notifications</div>
+                </div>
+            </a>
+            <a href="/message">
+                <div class="d-flex flex-row pt-5">
+                    <img src="/static/img/message.png" width="30" height="30">
+                    <div class="pl-4 h4">Message</div>
+                </div>
+            </a>
+            <a href="/bookmarks">
+                <div class="d-flex flex-row pt-5">
+                    <img src="/static/img/bookmarks.png" width="30" height="30">
+                    <div class="pl-4 h4">Bookmarks</div>
+                </div>
+            </a>
+            <a href="/profile">
+                <div class="d-flex flex-row pt-5">
+                    <img src="/static/img/profile.png" width="30" height="30">
+                    <div class="pl-4 h4">Profile</div>
+                </div>
+            </a>
+        </nav>
+
+        <div class="d-flex flex-row justify-content-left">
+            <img src="{{ .avatarImage }}" width="50" height="50">
+            <span class="pl-2 pt-2">{{ .displayName }}</span>
+        </div>
+    </div>
+</div>

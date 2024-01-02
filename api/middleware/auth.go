@@ -11,7 +11,7 @@ func AuthRequired() gin.HandlerFunc {
 		sessionID, err := c.Cookie("session_id")
 		if err != nil || sessionID == "" {
 			// ログイン認証していない場合、login.htmlにリダイレクト
-			c.Redirect(http.StatusSeeOther, "/api/user/login")
+			c.Redirect(http.StatusSeeOther, "/login")
 			c.Abort()
 			return
 		}

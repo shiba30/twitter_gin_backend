@@ -26,11 +26,9 @@ func signupHandler(cfg config.Config) gin.HandlerFunc {
 }
 
 func SignupRoutes(router *gin.RouterGroup, cfg config.Config) {
-	user := router.Group("/user")
-	{
-		user.POST("/signup", signupHandler(cfg))
-		user.GET("/verify/:token", activateUser) // 確認メールのリンクが踏まれた時に呼び出される関数
-	}
+	router.POST("/signup", signupHandler(cfg))
+	router.GET("/verify/:token", activateUser) // 確認メールのリンクが踏まれた時に呼び出される関数
+
 }
 
 // パスワードバリデーション
