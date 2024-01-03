@@ -50,7 +50,7 @@
                             <img src="{{ .avatarImage }}" width="50" height="50">
                         </div>
                         <div class="col-11">
-                            <form class="m-3" id="replyForm" data-user-id="{{ .userId }}">
+                            <form id="replyForm" class="m-3" data-user-id="{{ .userId }}" enctype="multipart/form-data">
                                 <div class="form-group">
                                     <textarea id="replyContent" class="tweetarea form-control" maxlength="140"
                                         placeholder="Post your reply" style="background-color: #fff;"></textarea>
@@ -64,14 +64,16 @@
                                 <hr color="#fff" max-width="800">
                                 <!-- ファイルアップロード -->
                                 {{template "upload.html" .}}
-                                <button type="submit" id="postReply"
+                                <button type="submit"
                                     class="btn btn-primary float-right mb-3 rounded-pill btn-custom">Reply</button>
                             </form>
                         </div>
                     </div>
 
-                    <!-- リプライ一覧表示 -->
-                    <div id="repliesList" class="replies-list"></div>
+                    <div>
+                        <!-- リプライ一覧表示 -->
+                        <div id="repliesList"></div>
+                    </div>
                 </div>
             </div>
         </div>
