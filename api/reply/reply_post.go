@@ -16,13 +16,13 @@ import (
 )
 
 type ReplyForm struct {
-	ReplyTo int64  `json:"replyTo"`
+	TweetId int64  `json:"tweetId"`
 	UserId  int64  `json:"userId"`
 	Content string `json:"content"`
 	Image   string `json:"image,omitempty"`
 }
 
-func postReply(cfg config.Config) gin.HandlerFunc {
+func PostReply(cfg config.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		form := ReplyForm{}
 		dir := cfg.UploadedImagesDir
@@ -85,15 +85,10 @@ func postReply(cfg config.Config) gin.HandlerFunc {
 			imagePath = sql.NullString{Valid: false}
 		}
 
-		log.Println(newNullInt64(form.ReplyTo))
-		log.Println(userId)
-		log.Println(form.Content)
-		log.Println(imagePath)
-
 		// コメントデータの保存処理
 		queries := sqlc.New(db.DbConn())
 		_, err = queries.InsertReply(c, sqlc.InsertReplyParams{
-			ReplyTo:   newNullInt64(form.ReplyTo),
+			TweetID:   form.TweetId,
 			UserID:    userId,
 			Content:   form.Content,
 			ImagePath: imagePath,
@@ -109,11 +104,4 @@ func postReply(cfg config.Config) gin.HandlerFunc {
 		// 成功レスポンス
 		c.JSON(200, gin.H{"message": "Comment posted successfully"})
 	}
-}
-
-func newNullInt64(i int64) sql.NullInt64 {
-	if i == 0 {
-		return sql.NullInt64{Valid: false}
-	}
-	return sql.NullInt64{Int64: i, Valid: true}
 }

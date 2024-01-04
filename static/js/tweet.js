@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // ツイート処理
   function sendRequest(data) {
-    fetch("/tweet/post", {
+    fetch("/tweets", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -106,7 +106,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   function loadTweets(page) {
-    fetch(`../tweet/tweets?page=${page}`)
+    fetch(`/tweets?page=${page}`)
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -186,7 +186,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // ツイート要素にクリックイベントリスナーを追加
       tweetElement.addEventListener("click", function () {
         const tweetId = this.getAttribute("data-tweet-id");
-        window.location.href = `/tweet/details/${tweetId}`; // ツイート詳細ページにリダイレクト
+        window.location.href = `/tweets/${tweetId}`; // ツイート詳細ページにリダイレクト
       });
       tweetContainer.appendChild(tweetElement);
     });

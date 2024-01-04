@@ -1,7 +1,6 @@
 package reply
 
 import (
-	"database/sql"
 	"log"
 	"net/http"
 	"strconv"
@@ -12,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func getReply(cfg config.Config) gin.HandlerFunc {
+func GetReplies(cfg config.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// ツイートIDの取得
 		tweetID, err := strconv.ParseInt(c.Param("id"), 10, 64)
@@ -23,7 +22,7 @@ func getReply(cfg config.Config) gin.HandlerFunc {
 
 		// リプライデータの取得処理
 		queries := sqlc.New(db.DbConn())
-		replies, err := queries.GetTweetDetailReply(c, sql.NullInt64{Int64: tweetID, Valid: true})
+		replies, err := queries.GetTweetDetailReply(c, tweetID)
 		if err != nil {
 			log.Printf("failed to get replies: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "リプライの取得に失敗しました"})

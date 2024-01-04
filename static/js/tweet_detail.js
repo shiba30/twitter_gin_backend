@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", function () {
     e.preventDefault();
 
     let formData = {
-      replyTo: tweetId,
+      tweetId: tweetId,
       userId: userId,
       content: replyContent.value,
     };
@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   function sendReplyRequest(formData) {
-    fetch(`/reply/${tweetId}`, {
+    fetch(`/tweets/${tweetId}/replies`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -91,7 +91,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // 返信（リプライ）を読み込む機能
   function loadReplies() {
-    fetch(`/reply/replies/${tweetId}`)
+    fetch(`/tweets/${tweetId}/replies`)
       .then((response) => response.json())
       .then((data) => {
         const avatarImage = "/static/img/default_avatar.png";
@@ -125,13 +125,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
           const createdAtText = document.createElement("small");
           createdAtText.innerText = `　- ${new Date(
-            reply.tweet_date
+            reply.reply_date
           ).toLocaleString()}`;
           createdAtText.className = "text-muted";
           userNameDiv.appendChild(createdAtText);
 
           const replyContentDiv = document.createElement("div");
-          replyContentDiv.innerText = reply.tweet_content;
+          replyContentDiv.innerText = reply.reply_content;
           replyContentDiv.style.marginBottom = "15px";
 
           contentDiv.appendChild(userNameDiv);

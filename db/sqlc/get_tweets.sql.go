@@ -23,8 +23,6 @@ FROM
     tweets
 JOIN 
     users ON tweets.user_id = users.id
-WHERE
-    tweets.reply_to IS NULL
 ORDER BY
     tweets.created_at DESC
 LIMIT
