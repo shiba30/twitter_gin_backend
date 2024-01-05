@@ -43,8 +43,15 @@ nav a {
     width: 100px;
 }
 
+.btn-goback {
+    color: #fff;
+    background-color: #000;
+    border: none;
+    text-decoration: none;
+}
+
 .tweetarea {
-    height: 150px;
+    min-height: 100px;
     background: none;
     border: none;
 }
@@ -61,4 +68,13 @@ nav a {
 #selectedImagePreview {
     max-width: 50%;
     display: none;
+}
+
+.tweet {
+    transition: background-color 0.3s ease; 
+}
+
+.tweet:hover {
+    background-color: #484850; 
+    cursor: pointer; 
 }

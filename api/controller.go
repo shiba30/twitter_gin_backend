@@ -5,8 +5,6 @@
 package api
 
 import (
-	"net/http"
-
 	"example.com/golang_twitter/api/interfaces"
 	"example.com/golang_twitter/api/middleware"
 	"example.com/golang_twitter/api/tweet"
@@ -29,7 +27,7 @@ func NewController(cfg config.Config, redisConn *interfaces.RedisConn) *Controll
 
 func (c *Controller) Routes(router *gin.Engine) {
 	// APIのルーティング
-	api := router.Group("/api")
+	api := router.Group("/")
 	{
 		user.SignupRoutes(api, c.Config)
 		user.LoginRoutes(api, c.Config, c.RedisConn)
@@ -37,16 +35,16 @@ func (c *Controller) Routes(router *gin.Engine) {
 	}
 
 	// ページレンダリングのルーティング
-	api.GET("/user/signup", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "signup.html", nil)
+	api.GET("/signup", func(c *gin.Context) {
+		c.HTML(200, "signup.html", nil)
 	})
-	api.GET("/user/verification", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "verification.html", nil)
+	api.GET("/verification", func(c *gin.Context) {
+		c.HTML(200, "verification.html", nil)
 	})
-	api.GET("/user/login", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "login.html", nil)
+	api.GET("/login", func(c *gin.Context) {
+		c.HTML(200, "login.html", nil)
 	})
-	api.GET("/user/home", middleware.AuthRequired(), func(ctx *gin.Context) {
+	api.GET("/home", middleware.AuthRequired(), func(ctx *gin.Context) {
 		user.ShowHome(ctx, c.RedisConn, c.Config)
 	})
 }

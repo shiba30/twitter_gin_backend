@@ -15,6 +15,7 @@ const getTweets = `-- name: GetTweets :many
 SELECT 
     users.display_name AS user_name,
     users.profile_image AS user_image,
+    tweets.id AS tweet_id,
     tweets.content AS tweet_content,
     tweets.image_path AS image_path,
     tweets.created_at AS tweet_date
@@ -36,6 +37,7 @@ type GetTweetsParams struct {
 type GetTweetsRow struct {
 	UserName     string         `json:"user_name"`
 	UserImage    sql.NullString `json:"user_image"`
+	TweetID      int64          `json:"tweet_id"`
 	TweetContent string         `json:"tweet_content"`
 	ImagePath    sql.NullString `json:"image_path"`
 	TweetDate    time.Time      `json:"tweet_date"`
@@ -53,6 +55,7 @@ func (q *Queries) GetTweets(ctx context.Context, arg GetTweetsParams) ([]GetTwee
 		if err := rows.Scan(
 			&i.UserName,
 			&i.UserImage,
+			&i.TweetID,
 			&i.TweetContent,
 			&i.ImagePath,
 			&i.TweetDate,

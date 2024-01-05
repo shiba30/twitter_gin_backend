@@ -27,6 +27,12 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.createUserStmt, err = db.PrepareContext(ctx, createUser); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateUser: %w", err)
 	}
+	if q.getTweetDetailStmt, err = db.PrepareContext(ctx, getTweetDetail); err != nil {
+		return nil, fmt.Errorf("error preparing query GetTweetDetail: %w", err)
+	}
+	if q.getTweetDetailReplyStmt, err = db.PrepareContext(ctx, getTweetDetailReply); err != nil {
+		return nil, fmt.Errorf("error preparing query GetTweetDetailReply: %w", err)
+	}
 	if q.getTweetsStmt, err = db.PrepareContext(ctx, getTweets); err != nil {
 		return nil, fmt.Errorf("error preparing query GetTweets: %w", err)
 	}
@@ -38,6 +44,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	}
 	if q.getUserInfoStmt, err = db.PrepareContext(ctx, getUserInfo); err != nil {
 		return nil, fmt.Errorf("error preparing query GetUserInfo: %w", err)
+	}
+	if q.insertReplyStmt, err = db.PrepareContext(ctx, insertReply); err != nil {
+		return nil, fmt.Errorf("error preparing query InsertReply: %w", err)
 	}
 	if q.insertTweetStmt, err = db.PrepareContext(ctx, insertTweet); err != nil {
 		return nil, fmt.Errorf("error preparing query InsertTweet: %w", err)
@@ -53,6 +62,16 @@ func (q *Queries) Close() error {
 	if q.createUserStmt != nil {
 		if cerr := q.createUserStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing createUserStmt: %w", cerr)
+		}
+	}
+	if q.getTweetDetailStmt != nil {
+		if cerr := q.getTweetDetailStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getTweetDetailStmt: %w", cerr)
+		}
+	}
+	if q.getTweetDetailReplyStmt != nil {
+		if cerr := q.getTweetDetailReplyStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getTweetDetailReplyStmt: %w", cerr)
 		}
 	}
 	if q.getTweetsStmt != nil {
@@ -73,6 +92,11 @@ func (q *Queries) Close() error {
 	if q.getUserInfoStmt != nil {
 		if cerr := q.getUserInfoStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getUserInfoStmt: %w", cerr)
+		}
+	}
+	if q.insertReplyStmt != nil {
+		if cerr := q.insertReplyStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing insertReplyStmt: %w", cerr)
 		}
 	}
 	if q.insertTweetStmt != nil {
@@ -125,10 +149,13 @@ type Queries struct {
 	db                           DBTX
 	tx                           *sql.Tx
 	createUserStmt               *sql.Stmt
+	getTweetDetailStmt           *sql.Stmt
+	getTweetDetailReplyStmt      *sql.Stmt
 	getTweetsStmt                *sql.Stmt
 	getUserByActivationTokenStmt *sql.Stmt
 	getUserByEmailStmt           *sql.Stmt
 	getUserInfoStmt              *sql.Stmt
+	insertReplyStmt              *sql.Stmt
 	insertTweetStmt              *sql.Stmt
 	updateUserStmt               *sql.Stmt
 }
@@ -138,10 +165,13 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		db:                           tx,
 		tx:                           tx,
 		createUserStmt:               q.createUserStmt,
+		getTweetDetailStmt:           q.getTweetDetailStmt,
+		getTweetDetailReplyStmt:      q.getTweetDetailReplyStmt,
 		getTweetsStmt:                q.getTweetsStmt,
 		getUserByActivationTokenStmt: q.getUserByActivationTokenStmt,
 		getUserByEmailStmt:           q.getUserByEmailStmt,
 		getUserInfoStmt:              q.getUserInfoStmt,
+		insertReplyStmt:              q.insertReplyStmt,
 		insertTweetStmt:              q.insertTweetStmt,
 		updateUserStmt:               q.updateUserStmt,
 	}

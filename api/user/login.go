@@ -18,12 +18,9 @@ type loginForm struct {
 }
 
 func LoginRoutes(router *gin.RouterGroup, cfg config.Config, redisConn *interfaces.RedisConn) {
-	user := router.Group("/user")
-	{
-		user.POST("/login", func(c *gin.Context) {
-			login(c, cfg, redisConn)
-		})
-	}
+	router.POST("/login", func(c *gin.Context) {
+		login(c, cfg, redisConn)
+	})
 }
 
 // ログイン機能

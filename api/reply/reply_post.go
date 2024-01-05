@@ -1,4 +1,4 @@
-package tweet
+package reply
 
 import (
 	"log"
@@ -10,21 +10,21 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type TweetForm struct {
-	ID      int64  `json:"id"`
+type ReplyForm struct {
+	TweetId int64  `json:"tweetId"`
 	UserId  int64  `json:"userId"`
 	Content string `json:"content"`
 	Image   string `json:"image,omitempty"`
 }
 
-func postTweet(cfg config.Config) gin.HandlerFunc {
+func PostReply(cfg config.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		form := TweetForm{}
+		form := ReplyForm{}
 
 		// リクエストデータの確認
-		if err := c.ShouldBindJSON(&form); err != nil {
+		if err := c.ShouldBind(&form); err != nil {
 			log.Printf("failed to bind tweet data: %v", err)
-			c.JSON(400, gin.H{"error": "ツイートに失敗しました"})
+			c.JSON(400, gin.H{"error": "リプライに失敗しました"})
 			return
 		}
 
@@ -56,23 +56,23 @@ func postTweet(cfg config.Config) gin.HandlerFunc {
 			return
 		}
 
-		// ツイート保存処理
-		// sqlcのQueriesオブジェクトを初期化
+		// コメントデータの保存処理
 		queries := sqlc.New(db.DbConn())
-		_, err = queries.InsertTweet(c, sqlc.InsertTweetParams{
+		_, err = queries.InsertReply(c, sqlc.InsertReplyParams{
+			TweetID:   form.TweetId,
 			UserID:    userId,
 			Content:   form.Content,
 			ImagePath: imagePath,
 		})
 		if err != nil {
-			log.Printf("failed to save tweet: %v", err)
-			c.JSON(500, gin.H{"error": "ツイート保存に失敗しました"})
+			log.Printf("failed to save reply: %v", err)
+			c.JSON(500, gin.H{"error": "リプライ保存に失敗しました"})
 			return
 		}
 
-		log.Println("successful tweet")
+		log.Println("successful reply")
 
-		c.JSON(200, gin.H{"user_id": form.UserId, "content": form.Content, "image_path": imagePath})
-
+		// 成功レスポンス
+		c.JSON(200, gin.H{"message": "Comment posted successfully"})
 	}
 }

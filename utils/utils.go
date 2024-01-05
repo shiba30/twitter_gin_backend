@@ -1,7 +1,12 @@
-package util
+package utils
 
 import (
+	"database/sql"
+	"encoding/base64"
 	"fmt"
+	"log"
+	"os"
+	"time"
 
 	"example.com/golang_twitter/api/interfaces"
 	"example.com/golang_twitter/db"
@@ -42,4 +47,33 @@ func GetSessionUserId(c *gin.Context, sessionID string) (int64, error) {
 	}
 
 	return rc.GetUserIdFromSession(c, sessionID)
+}
+
+// Base64エンコードされた画像データをデコードし、ディレクトリに保存して、パス返却
+func ProcessImage(imageData string, dir string, userId int64) (sql.NullString, error) {
+	var imagePath sql.NullString
+	if imageData != "" {
+		data, decodeErr := base64.StdEncoding.DecodeString(imageData)
+		if decodeErr != nil {
+			log.Printf("failed to decode base64 image data: %v", decodeErr)
+			return imagePath, decodeErr
+		}
+
+		if _, err := os.Stat(dir); os.IsNotExist(err) {
+			os.MkdirAll(dir, 0755)
+		}
+
+		filename := fmt.Sprintf("%d_%d.png", time.Now().Unix(), userId)
+		path := dir + filename
+		imagePath = sql.NullString{String: path, Valid: true}
+
+		err := os.WriteFile(path, data, 0644)
+		if err != nil {
+			log.Printf("failed to save image data to local file: %v", err)
+			return imagePath, err
+		}
+	} else {
+		imagePath = sql.NullString{Valid: false}
+	}
+	return imagePath, nil
 }

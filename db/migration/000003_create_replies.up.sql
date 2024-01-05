@@ -1,8 +1,10 @@
-CREATE TABLE IF NOT EXISTS tweets (
+CREATE TABLE IF NOT EXISTS replies (
     id BIGSERIAL PRIMARY KEY,
+    tweet_id BIGINT NOT NULL REFERENCES tweets(id),
     user_id BIGINT NOT NULL REFERENCES users(id),
     content VARCHAR(140) NOT NULL,
     image_path VARCHAR(255),
+    quote_tweet_id BIGINT REFERENCES tweets(id),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
