@@ -8,7 +8,7 @@ import (
 	"example.com/golang_twitter/api/tweet"
 	"example.com/golang_twitter/config"
 	"example.com/golang_twitter/constants"
-	"example.com/golang_twitter/util"
+	"example.com/golang_twitter/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 )
@@ -19,7 +19,7 @@ type RedisGetter interface {
 
 // ホーム表示
 func ShowHome(c *gin.Context, redisConn *interfaces.RedisConn, cfg config.Config) {
-	userInfo, err := util.CurrentUser(c, redisConn)
+	userInfo, err := utils.CurrentUser(c, redisConn)
 	if err != nil {
 		log.Printf("Failed to retrieve current user: %v", err)
 		c.Redirect(303, "/login")

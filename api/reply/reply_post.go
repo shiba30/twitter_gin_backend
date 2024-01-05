@@ -1,17 +1,12 @@
 package reply
 
 import (
-	"database/sql"
-	"encoding/base64"
-	"fmt"
 	"log"
-	"os"
-	"time"
 
 	"example.com/golang_twitter/config"
 	"example.com/golang_twitter/db"
 	sqlc "example.com/golang_twitter/db/sqlc"
-	"example.com/golang_twitter/util"
+	"example.com/golang_twitter/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -25,7 +20,6 @@ type ReplyForm struct {
 func PostReply(cfg config.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		form := ReplyForm{}
-		dir := cfg.UploadedImagesDir
 
 		// リクエストデータの確認
 		if err := c.ShouldBind(&form); err != nil {
@@ -48,41 +42,18 @@ func PostReply(cfg config.Config) gin.HandlerFunc {
 			c.JSON(500, gin.H{"error": "セッションIDの取得に失敗しました"})
 			return
 		}
-		userId, err := util.GetSessionUserId(c, sessionID)
+		userId, err := utils.GetSessionUserId(c, sessionID)
 		if err != nil {
 			log.Printf("Failed to retrieve userId from session: %v", err)
 			c.JSON(500, gin.H{"error": "セッションからユーザー情報の取得に失敗しました"})
 			return
 		}
 
-		// Base64画像データのデコード (もし画像がある場合)
-		var imagePath sql.NullString
-		if form.Image != "" {
-			var decodeErr error
-			imageData, decodeErr := base64.StdEncoding.DecodeString(form.Image)
-			if decodeErr != nil {
-				log.Printf("failed to decode base64 image data: %v", decodeErr)
-				c.JSON(400, gin.H{"error": "画像のデコードに失敗しました"})
-				return
-			}
-			if _, err := os.Stat(dir); os.IsNotExist(err) {
-				// ディレクトリが存在しない場合、作成します
-				os.MkdirAll(dir, 0755)
-			}
-			// 現在のタイムスタンプを使用して、一意のファイル名を生成
-			filename := fmt.Sprintf("%d_%d.png", time.Now().Unix(), form.UserId)
-			path := dir + filename
-			imagePath = sql.NullString{String: path, Valid: true}
-
-			// 画像データをローカルのディレクトリに保存
-			err := os.WriteFile(path, imageData, 0644)
-			if err != nil {
-				log.Printf("failed to save image data to local file: %v", err)
-				c.JSON(500, gin.H{"error": "画像の保存に失敗しました"})
-				return
-			}
-		} else {
-			imagePath = sql.NullString{Valid: false}
+		// 画像処理部分を共通関数に置き換え
+		imagePath, err := utils.ProcessImage(form.Image, cfg.UploadedImagesDir, form.UserId)
+		if err != nil {
+			c.JSON(500, gin.H{"error": "画像の処理に失敗しました"})
+			return
 		}
 
 		// コメントデータの保存処理
