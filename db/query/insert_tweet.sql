@@ -2,7 +2,8 @@
 INSERT INTO tweets (
     user_id,
     content,
-    image_path
+    image_path,
+    is_retweet
 ) VALUES (
-    $1, $2, $3
-) RETURNING user_id, content, image_path;
+    $1, $2, $3, $4
+) RETURNING id, user_id, content, image_path, is_retweet;

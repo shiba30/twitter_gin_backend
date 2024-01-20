@@ -14,27 +14,42 @@ const insertTweet = `-- name: InsertTweet :one
 INSERT INTO tweets (
     user_id,
     content,
-    image_path
+    image_path,
+    is_retweet
 ) VALUES (
-    $1, $2, $3
-) RETURNING user_id, content, image_path
+    $1, $2, $3, $4
+) RETURNING id, user_id, content, image_path, is_retweet
 `
 
 type InsertTweetParams struct {
 	UserID    int64          `json:"user_id"`
 	Content   string         `json:"content"`
 	ImagePath sql.NullString `json:"image_path"`
+	IsRetweet bool           `json:"is_retweet"`
 }
 
 type InsertTweetRow struct {
+	ID        int64          `json:"id"`
 	UserID    int64          `json:"user_id"`
 	Content   string         `json:"content"`
 	ImagePath sql.NullString `json:"image_path"`
+	IsRetweet bool           `json:"is_retweet"`
 }
 
 func (q *Queries) InsertTweet(ctx context.Context, arg InsertTweetParams) (InsertTweetRow, error) {
-	row := q.queryRow(ctx, q.insertTweetStmt, insertTweet, arg.UserID, arg.Content, arg.ImagePath)
+	row := q.queryRow(ctx, q.insertTweetStmt, insertTweet,
+		arg.UserID,
+		arg.Content,
+		arg.ImagePath,
+		arg.IsRetweet,
+	)
 	var i InsertTweetRow
-	err := row.Scan(&i.UserID, &i.Content, &i.ImagePath)
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Content,
+		&i.ImagePath,
+		&i.IsRetweet,
+	)
 	return i, err
 }

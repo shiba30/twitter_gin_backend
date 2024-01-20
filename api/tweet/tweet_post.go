@@ -50,7 +50,7 @@ func postTweet(cfg config.Config) gin.HandlerFunc {
 		}
 
 		// 画像処理部分を共通関数に置き換え
-		imagePath, err := utils.ProcessImage(form.Image, cfg.UploadedImagesDir, form.UserId)
+		imagePath, err := utils.ProcessImage(form.Image, cfg.UploadedImagesDir, userId)
 		if err != nil {
 			c.JSON(500, gin.H{"error": "画像の処理に失敗しました"})
 			return
@@ -63,6 +63,7 @@ func postTweet(cfg config.Config) gin.HandlerFunc {
 			UserID:    userId,
 			Content:   form.Content,
 			ImagePath: imagePath,
+			IsRetweet: false,
 		})
 		if err != nil {
 			log.Printf("failed to save tweet: %v", err)
