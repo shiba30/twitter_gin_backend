@@ -1,3 +1,5 @@
+import { tweetMenu } from "./tweet_Menu.js";
+
 document.addEventListener("DOMContentLoaded", function () {
   const tweetForm = document.getElementById("tweetForm");
   const userId = parseInt(tweetForm.getAttribute("data-user-id"), 10);
@@ -95,12 +97,14 @@ document.addEventListener("DOMContentLoaded", function () {
   // ボタンのイベントリスナーを設定
   document.getElementById("nextPage").addEventListener("click", function () {
     currentPage += 1;
+    document.getElementById("currentPage").innerText = currentPage;
     loadTweets(currentPage);
   });
 
   document.getElementById("prevPage").addEventListener("click", function () {
     if (currentPage > 1) {
       currentPage -= 1;
+      document.getElementById("currentPage").innerText = currentPage;
       loadTweets(currentPage);
     }
   });
@@ -115,7 +119,7 @@ document.addEventListener("DOMContentLoaded", function () {
       })
       .then((data) => {
         const avatarImagePath = "/static/img/default_avatar.png";
-        updateTweets(data, avatarImagePath);
+        updateTweets(data.tweets, data.currentUserId, avatarImagePath);
         document.getElementById("currentPage").innerText = page;
       })
       .catch((error) => {
@@ -123,7 +127,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
   }
 
-  function updateTweets(tweets, avatarImage) {
+  function updateTweets(tweets, currentUserId, avatarImage) {
     const tweetContainer = document.querySelector(
       ".col-md-9 > div:nth-child(3)"
     );
@@ -151,7 +155,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // リツイート情報の表示
       if (tweet.is_retweet) {
-        console.log(tweet.user_name);
         const retweetInfo = document.createElement("div");
         retweetInfo.className = "retweet-info";
         retweetInfo.innerText = `⇄ ${tweet.retweeter_name} がリツイート`;
@@ -310,6 +313,15 @@ document.addEventListener("DOMContentLoaded", function () {
       tweetContainer.appendChild(tweetElement);
       contentDiv.appendChild(interactionArea);
       tweetElement.appendChild(contentDiv);
+
+      // メニューボタン
+      tweetMenu(
+        tweetElement,
+        tweet.tweet_id,
+        tweet.is_following,
+        tweet.user_id,
+        currentUserId
+      );
     });
   }
 

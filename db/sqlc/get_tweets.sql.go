@@ -24,7 +24,8 @@ SELECT
     COALESCE(retweeters.display_name, '') AS retweeter_name, -- リツイートしたユーザーの名前
     COUNT(DISTINCT replies.id) AS replies_count,
     COUNT(DISTINCT likes.id) AS likes_count,
-    COUNT(DISTINCT retweets.id) AS retweets_count
+    COUNT(DISTINCT retweets.id) AS retweets_count,
+    CASE WHEN follows.follower_id IS NOT NULL THEN true ELSE false END AS is_following
 FROM
     tweets
 JOIN
@@ -37,8 +38,10 @@ LEFT JOIN
     users AS retweeters ON retweets.user_id = retweeters.id AND tweets.id = retweets.tweet_id -- リツイートしたユーザー
 LEFT JOIN
     likes ON tweets.id = likes.tweet_id
+LEFT JOIN
+    follows ON users.id = follows.followee_id AND follows.follower_id = $3
 GROUP BY
-    tweets.id, users.id, retweeters.id
+    tweets.id, users.id, retweeters.id, follows.follower_id
 ORDER BY
     tweets.created_at DESC
 LIMIT
@@ -46,8 +49,9 @@ LIMIT
 `
 
 type GetTweetsParams struct {
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
+	Limit      int32 `json:"limit"`
+	Offset     int32 `json:"offset"`
+	FollowerID int64 `json:"follower_id"`
 }
 
 type GetTweetsRow struct {
@@ -63,10 +67,11 @@ type GetTweetsRow struct {
 	RepliesCount  int64          `json:"replies_count"`
 	LikesCount    int64          `json:"likes_count"`
 	RetweetsCount int64          `json:"retweets_count"`
+	IsFollowing   bool           `json:"is_following"`
 }
 
 func (q *Queries) GetTweets(ctx context.Context, arg GetTweetsParams) ([]GetTweetsRow, error) {
-	rows, err := q.query(ctx, q.getTweetsStmt, getTweets, arg.Limit, arg.Offset)
+	rows, err := q.query(ctx, q.getTweetsStmt, getTweets, arg.Limit, arg.Offset, arg.FollowerID)
 	if err != nil {
 		return nil, err
 	}
@@ -87,6 +92,7 @@ func (q *Queries) GetTweets(ctx context.Context, arg GetTweetsParams) ([]GetTwee
 			&i.RepliesCount,
 			&i.LikesCount,
 			&i.RetweetsCount,
+			&i.IsFollowing,
 		); err != nil {
 			return nil, err
 		}
