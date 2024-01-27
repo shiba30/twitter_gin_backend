@@ -1,80 +1,115 @@
 body {
-    color: #fff;
-    background-color: #32323c;
-    height: 100vh;
+  color: #fff;
+  background-color: #32323c;
+  height: 100vh;
 }
 
 .container {
-    max-width: 1400px;
+  max-width: 1400px;
 }
 
 .signup-container {
-    background-color: #000;
-    padding: 20px;
-    margin-top: 50px;
-    border-radius: 30px;
+  background-color: #000;
+  padding: 20px;
+  margin-top: 50px;
+  border-radius: 30px;
 }
 
 .main-container {
-    background-color: #000;
-    min-height: 100vh;
+  background-color: #000;
+  min-height: 100vh;
 }
 
 .main-container > .content {
-    height: 100%;
+  height: 100%;
 }
 
 .sidebar {
-    max-width: 250px;
-    height: 600px;
+  max-width: 250px;
+  height: 600px;
 }
 
 nav a {
-    text-decoration: none;
-    color: inherit;
+  text-decoration: none;
+  color: inherit;
 }
 
 .twwiter-icon {
-    width: 50px;
-    height: 50px;
+  width: 50px;
+  height: 50px;
 }
 
 .btn-custom {
-    width: 100px;
+  width: 100px;
 }
 
 .btn-goback {
-    color: #fff;
-    background-color: #000;
-    border: none;
-    text-decoration: none;
+  color: #fff;
+  background-color: #000;
+  border: none;
+  text-decoration: none;
 }
 
 .tweetarea {
-    min-height: 100px;
-    background: none;
-    border: none;
+  min-height: 100px;
+  background: none;
+  border: none;
 }
 
 .upload {
-    width: 40px;
-    height: 40px;
-    background: none;
-    border: none;
-    padding: 0;
-    outline: none;
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: none;
+  padding: 0;
+  outline: none;
 }
 
 #selectedImagePreview {
-    max-width: 50%;
-    display: none;
+  max-width: 50%;
+  display: none;
 }
 
 .tweet {
-    transition: background-color 0.3s ease; 
+  transition: background-color 0.3s ease;
 }
 
 .tweet:hover {
-    background-color: #484850; 
-    cursor: pointer; 
+  cursor: pointer;
+}
+
+.tweet-interaction-area {
+  margin-top: 10px;
+}
+
+.tweet-interaction-area .btn {
+  color: #6c757d;
+  font-size: 0.8em;
+}
+
+.retweet-info {
+  font-size: 0.7em;
+  color: grey;
+  margin-bottom: 5px;
+}
+
+.btn-icon {
+  height: 1em;
+  width: auto;
+  vertical-align: middle;
+}
+
+.liked img,
+.retweeted img,
+.bookmarked img {
+  filter: grayscale(0%) sepia(100%) hue-rotate(-50deg) saturate(500%)
+    brightness(90%);
+  transition: filter 0.3s;
+}
+
+.liked .like-count,
+.retweeted .retweet-count,
+.bookmarked {
+  color: red;
+  transition: color 0.3s;
 }

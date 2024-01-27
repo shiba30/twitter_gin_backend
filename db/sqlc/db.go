@@ -24,8 +24,32 @@ func New(db DBTX) *Queries {
 func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	q := Queries{db: db}
 	var err error
+	if q.createLikeStmt, err = db.PrepareContext(ctx, createLike); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateLike: %w", err)
+	}
+	if q.createRetweetStmt, err = db.PrepareContext(ctx, createRetweet); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateRetweet: %w", err)
+	}
 	if q.createUserStmt, err = db.PrepareContext(ctx, createUser); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateUser: %w", err)
+	}
+	if q.deleteLikeStmt, err = db.PrepareContext(ctx, deleteLike); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteLike: %w", err)
+	}
+	if q.deleteRetweetStmt, err = db.PrepareContext(ctx, deleteRetweet); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteRetweet: %w", err)
+	}
+	if q.deleteTweetStmt, err = db.PrepareContext(ctx, deleteTweet); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteTweet: %w", err)
+	}
+	if q.getLikeStmt, err = db.PrepareContext(ctx, getLike); err != nil {
+		return nil, fmt.Errorf("error preparing query GetLike: %w", err)
+	}
+	if q.getRetweetStmt, err = db.PrepareContext(ctx, getRetweet); err != nil {
+		return nil, fmt.Errorf("error preparing query GetRetweet: %w", err)
+	}
+	if q.getTweetByIDStmt, err = db.PrepareContext(ctx, getTweetByID); err != nil {
+		return nil, fmt.Errorf("error preparing query GetTweetByID: %w", err)
 	}
 	if q.getTweetDetailStmt, err = db.PrepareContext(ctx, getTweetDetail); err != nil {
 		return nil, fmt.Errorf("error preparing query GetTweetDetail: %w", err)
@@ -59,9 +83,49 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 
 func (q *Queries) Close() error {
 	var err error
+	if q.createLikeStmt != nil {
+		if cerr := q.createLikeStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createLikeStmt: %w", cerr)
+		}
+	}
+	if q.createRetweetStmt != nil {
+		if cerr := q.createRetweetStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createRetweetStmt: %w", cerr)
+		}
+	}
 	if q.createUserStmt != nil {
 		if cerr := q.createUserStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing createUserStmt: %w", cerr)
+		}
+	}
+	if q.deleteLikeStmt != nil {
+		if cerr := q.deleteLikeStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteLikeStmt: %w", cerr)
+		}
+	}
+	if q.deleteRetweetStmt != nil {
+		if cerr := q.deleteRetweetStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteRetweetStmt: %w", cerr)
+		}
+	}
+	if q.deleteTweetStmt != nil {
+		if cerr := q.deleteTweetStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteTweetStmt: %w", cerr)
+		}
+	}
+	if q.getLikeStmt != nil {
+		if cerr := q.getLikeStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getLikeStmt: %w", cerr)
+		}
+	}
+	if q.getRetweetStmt != nil {
+		if cerr := q.getRetweetStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getRetweetStmt: %w", cerr)
+		}
+	}
+	if q.getTweetByIDStmt != nil {
+		if cerr := q.getTweetByIDStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getTweetByIDStmt: %w", cerr)
 		}
 	}
 	if q.getTweetDetailStmt != nil {
@@ -148,7 +212,15 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 type Queries struct {
 	db                           DBTX
 	tx                           *sql.Tx
+	createLikeStmt               *sql.Stmt
+	createRetweetStmt            *sql.Stmt
 	createUserStmt               *sql.Stmt
+	deleteLikeStmt               *sql.Stmt
+	deleteRetweetStmt            *sql.Stmt
+	deleteTweetStmt              *sql.Stmt
+	getLikeStmt                  *sql.Stmt
+	getRetweetStmt               *sql.Stmt
+	getTweetByIDStmt             *sql.Stmt
 	getTweetDetailStmt           *sql.Stmt
 	getTweetDetailReplyStmt      *sql.Stmt
 	getTweetsStmt                *sql.Stmt
@@ -164,7 +236,15 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
 		db:                           tx,
 		tx:                           tx,
+		createLikeStmt:               q.createLikeStmt,
+		createRetweetStmt:            q.createRetweetStmt,
 		createUserStmt:               q.createUserStmt,
+		deleteLikeStmt:               q.deleteLikeStmt,
+		deleteRetweetStmt:            q.deleteRetweetStmt,
+		deleteTweetStmt:              q.deleteTweetStmt,
+		getLikeStmt:                  q.getLikeStmt,
+		getRetweetStmt:               q.getRetweetStmt,
+		getTweetByIDStmt:             q.getTweetByIDStmt,
 		getTweetDetailStmt:           q.getTweetDetailStmt,
 		getTweetDetailReplyStmt:      q.getTweetDetailReplyStmt,
 		getTweetsStmt:                q.getTweetsStmt,

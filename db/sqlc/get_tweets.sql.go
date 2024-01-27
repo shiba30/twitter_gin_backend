@@ -12,17 +12,33 @@ import (
 )
 
 const getTweets = `-- name: GetTweets :many
-SELECT 
+SELECT
+    users.id AS user_id,
     users.display_name AS user_name,
     users.profile_image AS user_image,
     tweets.id AS tweet_id,
     tweets.content AS tweet_content,
     tweets.image_path AS image_path,
-    tweets.created_at AS tweet_date
-FROM 
+    tweets.created_at AS tweet_date,
+    tweets.is_retweet AS is_retweet,
+    COALESCE(retweeters.display_name, '') AS retweeter_name, -- リツイートしたユーザーの名前
+    COUNT(DISTINCT replies.id) AS replies_count,
+    COUNT(DISTINCT likes.id) AS likes_count,
+    COUNT(DISTINCT retweets.id) AS retweets_count
+FROM
     tweets
-JOIN 
+JOIN
     users ON tweets.user_id = users.id
+LEFT JOIN
+    replies ON tweets.id = replies.tweet_id
+LEFT JOIN
+    retweets ON tweets.id = retweets.tweet_id
+LEFT JOIN
+    users AS retweeters ON retweets.user_id = retweeters.id AND tweets.id = retweets.tweet_id -- リツイートしたユーザー
+LEFT JOIN
+    likes ON tweets.id = likes.tweet_id
+GROUP BY
+    tweets.id, users.id, retweeters.id
 ORDER BY
     tweets.created_at DESC
 LIMIT
@@ -35,12 +51,18 @@ type GetTweetsParams struct {
 }
 
 type GetTweetsRow struct {
-	UserName     string         `json:"user_name"`
-	UserImage    sql.NullString `json:"user_image"`
-	TweetID      int64          `json:"tweet_id"`
-	TweetContent string         `json:"tweet_content"`
-	ImagePath    sql.NullString `json:"image_path"`
-	TweetDate    time.Time      `json:"tweet_date"`
+	UserID        int64          `json:"user_id"`
+	UserName      string         `json:"user_name"`
+	UserImage     sql.NullString `json:"user_image"`
+	TweetID       int64          `json:"tweet_id"`
+	TweetContent  string         `json:"tweet_content"`
+	ImagePath     sql.NullString `json:"image_path"`
+	TweetDate     time.Time      `json:"tweet_date"`
+	IsRetweet     bool           `json:"is_retweet"`
+	RetweeterName string         `json:"retweeter_name"`
+	RepliesCount  int64          `json:"replies_count"`
+	LikesCount    int64          `json:"likes_count"`
+	RetweetsCount int64          `json:"retweets_count"`
 }
 
 func (q *Queries) GetTweets(ctx context.Context, arg GetTweetsParams) ([]GetTweetsRow, error) {
@@ -53,12 +75,18 @@ func (q *Queries) GetTweets(ctx context.Context, arg GetTweetsParams) ([]GetTwee
 	for rows.Next() {
 		var i GetTweetsRow
 		if err := rows.Scan(
+			&i.UserID,
 			&i.UserName,
 			&i.UserImage,
 			&i.TweetID,
 			&i.TweetContent,
 			&i.ImagePath,
 			&i.TweetDate,
+			&i.IsRetweet,
+			&i.RetweeterName,
+			&i.RepliesCount,
+			&i.LikesCount,
+			&i.RetweetsCount,
 		); err != nil {
 			return nil, err
 		}
