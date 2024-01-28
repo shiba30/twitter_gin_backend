@@ -31,7 +31,7 @@ func ShowHome(c *gin.Context, redisConn *interfaces.RedisConn, cfg config.Config
 		avatarImage = userInfo.AvatarImage.String
 	}
 
-	tweets, err := tweet.GetTweetList(c, cfg)
+	tweets, err := tweet.GetTweetList(c, cfg, userInfo.ID)
 	if err != nil {
 		log.Printf("Failed to retrieve tweets: %v", err)
 		c.JSON(500, gin.H{"error": "ツイートの取得に失敗しました"})

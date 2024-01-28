@@ -2,6 +2,7 @@ package tweet
 
 import (
 	"example.com/golang_twitter/api/actions"
+	"example.com/golang_twitter/api/follow"
 	"example.com/golang_twitter/api/middleware"
 	"example.com/golang_twitter/api/reply"
 	"example.com/golang_twitter/config"
@@ -20,5 +21,8 @@ func TweetRoutes(router *gin.RouterGroup, cfg config.Config) {
 
 		tweet.POST("/:id/like", middleware.AuthRequired(), actions.LikeAction(cfg))       // いいね機能
 		tweet.POST("/:id/retweet", middleware.AuthRequired(), actions.RetweetAction(cfg)) // リツイート機能
+
+		tweet.POST("/:id/follow", middleware.AuthRequired(), follow.Follow(cfg))     // フォロー機能
+		tweet.POST("/:id/unfollow", middleware.AuthRequired(), follow.UnFollow(cfg)) // フォロー解除機能
 	}
 }

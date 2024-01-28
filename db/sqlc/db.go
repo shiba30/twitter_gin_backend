@@ -24,6 +24,9 @@ func New(db DBTX) *Queries {
 func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	q := Queries{db: db}
 	var err error
+	if q.createFollowStmt, err = db.PrepareContext(ctx, createFollow); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateFollow: %w", err)
+	}
 	if q.createLikeStmt, err = db.PrepareContext(ctx, createLike); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateLike: %w", err)
 	}
@@ -32,6 +35,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	}
 	if q.createUserStmt, err = db.PrepareContext(ctx, createUser); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateUser: %w", err)
+	}
+	if q.deleteFollowStmt, err = db.PrepareContext(ctx, deleteFollow); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteFollow: %w", err)
 	}
 	if q.deleteLikeStmt, err = db.PrepareContext(ctx, deleteLike); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteLike: %w", err)
@@ -83,6 +89,11 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 
 func (q *Queries) Close() error {
 	var err error
+	if q.createFollowStmt != nil {
+		if cerr := q.createFollowStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createFollowStmt: %w", cerr)
+		}
+	}
 	if q.createLikeStmt != nil {
 		if cerr := q.createLikeStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing createLikeStmt: %w", cerr)
@@ -96,6 +107,11 @@ func (q *Queries) Close() error {
 	if q.createUserStmt != nil {
 		if cerr := q.createUserStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing createUserStmt: %w", cerr)
+		}
+	}
+	if q.deleteFollowStmt != nil {
+		if cerr := q.deleteFollowStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteFollowStmt: %w", cerr)
 		}
 	}
 	if q.deleteLikeStmt != nil {
@@ -212,9 +228,11 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 type Queries struct {
 	db                           DBTX
 	tx                           *sql.Tx
+	createFollowStmt             *sql.Stmt
 	createLikeStmt               *sql.Stmt
 	createRetweetStmt            *sql.Stmt
 	createUserStmt               *sql.Stmt
+	deleteFollowStmt             *sql.Stmt
 	deleteLikeStmt               *sql.Stmt
 	deleteRetweetStmt            *sql.Stmt
 	deleteTweetStmt              *sql.Stmt
@@ -236,9 +254,11 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
 		db:                           tx,
 		tx:                           tx,
+		createFollowStmt:             q.createFollowStmt,
 		createLikeStmt:               q.createLikeStmt,
 		createRetweetStmt:            q.createRetweetStmt,
 		createUserStmt:               q.createUserStmt,
+		deleteFollowStmt:             q.deleteFollowStmt,
 		deleteLikeStmt:               q.deleteLikeStmt,
 		deleteRetweetStmt:            q.deleteRetweetStmt,
 		deleteTweetStmt:              q.deleteTweetStmt,

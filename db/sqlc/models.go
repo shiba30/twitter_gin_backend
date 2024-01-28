@@ -9,6 +9,12 @@ import (
 	"time"
 )
 
+type Follow struct {
+	FollowerID int64        `json:"follower_id"`
+	FolloweeID int64        `json:"followee_id"`
+	CreatedAt  sql.NullTime `json:"created_at"`
+}
+
 type Like struct {
 	ID        int64     `json:"id"`
 	TweetID   int64     `json:"tweet_id"`

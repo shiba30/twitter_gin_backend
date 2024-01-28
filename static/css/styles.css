@@ -71,11 +71,31 @@ nav a {
 }
 
 .tweet {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
   transition: background-color 0.3s ease;
 }
 
 .tweet:hover {
   cursor: pointer;
+}
+
+.tweet-content {
+  flex-grow: 1;
+  margin-right: 10px;
+}
+
+.tweet-menu-wrapper {
+  position: relative;
+  margin-left: auto;
+}
+
+.tweet-menu {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
 }
 
 .tweet-interaction-area {
@@ -112,4 +132,22 @@ nav a {
 .bookmarked {
   color: red;
   transition: color 0.3s;
+}
+
+.tweet-menu-dropdown {
+  display: none;
+  position: absolute;
+  right: 0;
+  background-color: #000;
+  border: 1px solid #fff;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.5);
+  border-radius: 20%;
+  z-index: 1;
+}
+
+.tweet-menu-dropdown a {
+  color: white;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
 }
