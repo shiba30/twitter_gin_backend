@@ -24,6 +24,9 @@ func New(db DBTX) *Queries {
 func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	q := Queries{db: db}
 	var err error
+	if q.createBookmarkStmt, err = db.PrepareContext(ctx, createBookmark); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateBookmark: %w", err)
+	}
 	if q.createFollowStmt, err = db.PrepareContext(ctx, createFollow); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateFollow: %w", err)
 	}
@@ -36,6 +39,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.createUserStmt, err = db.PrepareContext(ctx, createUser); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateUser: %w", err)
 	}
+	if q.deleteBookmarkStmt, err = db.PrepareContext(ctx, deleteBookmark); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteBookmark: %w", err)
+	}
 	if q.deleteFollowStmt, err = db.PrepareContext(ctx, deleteFollow); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteFollow: %w", err)
 	}
@@ -47,6 +53,12 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	}
 	if q.deleteTweetStmt, err = db.PrepareContext(ctx, deleteTweet); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteTweet: %w", err)
+	}
+	if q.getBookmarkStmt, err = db.PrepareContext(ctx, getBookmark); err != nil {
+		return nil, fmt.Errorf("error preparing query GetBookmark: %w", err)
+	}
+	if q.getBookmarksStmt, err = db.PrepareContext(ctx, getBookmarks); err != nil {
+		return nil, fmt.Errorf("error preparing query GetBookmarks: %w", err)
 	}
 	if q.getLikeStmt, err = db.PrepareContext(ctx, getLike); err != nil {
 		return nil, fmt.Errorf("error preparing query GetLike: %w", err)
@@ -89,6 +101,11 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 
 func (q *Queries) Close() error {
 	var err error
+	if q.createBookmarkStmt != nil {
+		if cerr := q.createBookmarkStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createBookmarkStmt: %w", cerr)
+		}
+	}
 	if q.createFollowStmt != nil {
 		if cerr := q.createFollowStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing createFollowStmt: %w", cerr)
@@ -109,6 +126,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing createUserStmt: %w", cerr)
 		}
 	}
+	if q.deleteBookmarkStmt != nil {
+		if cerr := q.deleteBookmarkStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteBookmarkStmt: %w", cerr)
+		}
+	}
 	if q.deleteFollowStmt != nil {
 		if cerr := q.deleteFollowStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing deleteFollowStmt: %w", cerr)
@@ -127,6 +149,16 @@ func (q *Queries) Close() error {
 	if q.deleteTweetStmt != nil {
 		if cerr := q.deleteTweetStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing deleteTweetStmt: %w", cerr)
+		}
+	}
+	if q.getBookmarkStmt != nil {
+		if cerr := q.getBookmarkStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getBookmarkStmt: %w", cerr)
+		}
+	}
+	if q.getBookmarksStmt != nil {
+		if cerr := q.getBookmarksStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getBookmarksStmt: %w", cerr)
 		}
 	}
 	if q.getLikeStmt != nil {
@@ -228,14 +260,18 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 type Queries struct {
 	db                           DBTX
 	tx                           *sql.Tx
+	createBookmarkStmt           *sql.Stmt
 	createFollowStmt             *sql.Stmt
 	createLikeStmt               *sql.Stmt
 	createRetweetStmt            *sql.Stmt
 	createUserStmt               *sql.Stmt
+	deleteBookmarkStmt           *sql.Stmt
 	deleteFollowStmt             *sql.Stmt
 	deleteLikeStmt               *sql.Stmt
 	deleteRetweetStmt            *sql.Stmt
 	deleteTweetStmt              *sql.Stmt
+	getBookmarkStmt              *sql.Stmt
+	getBookmarksStmt             *sql.Stmt
 	getLikeStmt                  *sql.Stmt
 	getRetweetStmt               *sql.Stmt
 	getTweetByIDStmt             *sql.Stmt
@@ -254,14 +290,18 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
 		db:                           tx,
 		tx:                           tx,
+		createBookmarkStmt:           q.createBookmarkStmt,
 		createFollowStmt:             q.createFollowStmt,
 		createLikeStmt:               q.createLikeStmt,
 		createRetweetStmt:            q.createRetweetStmt,
 		createUserStmt:               q.createUserStmt,
+		deleteBookmarkStmt:           q.deleteBookmarkStmt,
 		deleteFollowStmt:             q.deleteFollowStmt,
 		deleteLikeStmt:               q.deleteLikeStmt,
 		deleteRetweetStmt:            q.deleteRetweetStmt,
 		deleteTweetStmt:              q.deleteTweetStmt,
+		getBookmarkStmt:              q.getBookmarkStmt,
+		getBookmarksStmt:             q.getBookmarksStmt,
 		getLikeStmt:                  q.getLikeStmt,
 		getRetweetStmt:               q.getRetweetStmt,
 		getTweetByIDStmt:             q.getTweetByIDStmt,

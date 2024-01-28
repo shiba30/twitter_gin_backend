@@ -1,0 +1,233 @@
+import { tweetMenu } from "./tweet_menu.js";
+
+export function updateTweets(
+  tweets,
+  currentUserId,
+  avatarImage,
+  containerSelector
+) {
+  const tweetContainer = document.querySelector(containerSelector);
+  tweetContainer.innerHTML = ""; // 既存のツイートをクリア
+
+  tweets.forEach((tweet) => {
+    const tweetElement = document.createElement("div");
+    tweetElement.className = "border-bottom d-flex m-3 tweet";
+    tweetElement.setAttribute("data-tweet-id", tweet.tweet_id); // ツイートIDを設定
+
+    const avatarDiv = document.createElement("div");
+    avatarDiv.className = "pr-3";
+    const userImage =
+      tweet.user_image && tweet.user_image.Valid
+        ? tweet.user_image.String
+        : avatarImage;
+    const avatarImg = document.createElement("img");
+    avatarImg.src = userImage;
+    avatarImg.width = 50;
+    avatarImg.height = 50;
+    avatarDiv.appendChild(avatarImg);
+    tweetElement.appendChild(avatarDiv);
+
+    const contentDiv = document.createElement("div");
+
+    // リツイート情報の表示
+    if (tweet.is_retweet) {
+      const retweetInfo = document.createElement("div");
+      retweetInfo.className = "retweet-info";
+      retweetInfo.innerText = `⇄ ${tweet.retweeter_name} がリツイート`;
+      contentDiv.insertBefore(retweetInfo, contentDiv.firstChild);
+    }
+
+    const userNameDiv = document.createElement("div");
+    userNameDiv.innerText = tweet.user_name;
+    userNameDiv.style.marginBottom = "15px";
+    const createdAtText = document.createElement("small");
+    createdAtText.innerText = `　- ${new Date(
+      tweet.tweet_date
+    ).toLocaleString()}`;
+    createdAtText.className = "text-muted";
+    userNameDiv.appendChild(createdAtText);
+
+    const tweetContentDiv = document.createElement("div");
+    tweetContentDiv.innerText = tweet.tweet_content;
+    tweetContentDiv.style.marginBottom = "15px";
+
+    contentDiv.appendChild(userNameDiv);
+    contentDiv.appendChild(tweetContentDiv);
+
+    if (tweet.image_path && tweet.image_path.Valid) {
+      const imageContainer = document.createElement("div");
+      imageContainer.className = "justify-content-center";
+
+      const tweetImage = document.createElement("img");
+      tweetImage.src = "/" + tweet.image_path.String;
+      tweetImage.style.width = "100%";
+      tweetImage.style.height = "100%";
+      tweetImage.style.objectFit = "cover";
+      tweetImage.style.border = "0.2px solid #ddd";
+
+      imageContainer.appendChild(tweetImage);
+      contentDiv.appendChild(imageContainer);
+    }
+
+    // 返信、リツイート、いいねエリアの追加
+    const interactionArea = document.createElement("div");
+    interactionArea.className =
+      "tweet-interaction-area d-flex justify-content-start mb-3";
+    interactionArea.innerHTML = `
+        <button class="btn btn-sm mr-5 btn-reply">
+            <img src="/static/img/reply.png" alt="Reply" class="btn-icon"> ${
+              tweet.replies_count || 0
+            }
+        </button>
+        <button class="btn btn-sm mr-5 btn-retweet">
+            <img src="/static/img/retweet.png" alt="Retweet" class="btn-icon"> <span class="retweet-count">${
+              tweet.retweets_count || 0
+            }</span>
+        </button>
+        <button class="btn btn-sm mr-5 btn-like">
+            <img src="/static/img/like.png" alt="Like" class="btn-icon"> <span class="like-count">${
+              tweet.likes_count || 0
+            }</span>
+        </button>
+        <button class="btn btn-sm btn-bookmark">
+            <img src="/static/img/bookmark.png" alt="Bookmark" class="btn-icon">
+        </button>
+    `;
+
+    // 返信ボタン
+    interactionArea
+      .querySelector(".btn-reply")
+      .addEventListener("click", function (event) {
+        console.log("返信");
+        event.stopPropagation();
+        const tweetId = tweetElement.getAttribute("data-tweet-id");
+        window.open(
+          `/tweets/${tweetId}`,
+          "tweetDetail",
+          "width=1000,height=600,scrollbars=yes,resizable=yes"
+        );
+      });
+
+    // リツイートボタン
+    interactionArea
+      .querySelector(".btn-retweet")
+      .addEventListener("click", function (event) {
+        event.stopPropagation();
+        const tweetId = tweetElement.getAttribute("data-tweet-id");
+        const retweetCountElement = this.querySelector(".retweet-count");
+
+        fetch(`/tweets/${tweetId}/retweet`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            let retweetCount = parseInt(retweetCountElement.textContent) || 0;
+            if (data.message === "リツイート完了") {
+              retweetCount++;
+              this.classList.add("retweeted");
+              console.log("リツイート成功");
+              alert("リツイート完了");
+            } else {
+              retweetCount--;
+              if (retweetCount <= 0) {
+                this.classList.remove("retweeted");
+                console.log("リツイート取り消し");
+                alert("リツイート取り消し");
+              }
+            }
+            retweetCountElement.textContent = retweetCount;
+          })
+          .catch((error) => {
+            console.error("エラー:", error);
+          });
+      });
+
+    // いいねボタン
+    interactionArea
+      .querySelector(".btn-like")
+      .addEventListener("click", function (event) {
+        event.stopPropagation();
+        const tweetId = tweetElement.getAttribute("data-tweet-id");
+        const likeCountElement = this.querySelector(".like-count");
+
+        fetch(`/tweets/${tweetId}/like`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            let likeCount = parseInt(likeCountElement.textContent) || 0;
+            if (data.message === "いいね完了") {
+              likeCount++;
+              this.classList.add("liked");
+              console.log("いいね完了");
+            } else {
+              likeCount--;
+              if (likeCount <= 0) {
+                this.classList.remove("liked");
+                console.log("いいね取り消し");
+              }
+            }
+            likeCountElement.textContent = likeCount;
+          })
+          .catch((error) => {
+            console.error("エラー:", error);
+          });
+      });
+
+    // ブックマークボタン
+    // ブックマークボタンの状態設定
+    console.log(tweet);
+    console.log(tweet.is_bookmarked);
+    const bookmarkButton = interactionArea.querySelector(".btn-bookmark");
+    if (tweet.is_bookmarked) {
+      bookmarkButton.classList.add("bookmarked");
+    }
+    interactionArea
+      .querySelector(".btn-bookmark")
+      .addEventListener("click", function (event) {
+        event.stopPropagation();
+        const tweetId = tweetElement.getAttribute("data-tweet-id");
+        const isBookmarked = this.classList.contains("bookmarked");
+
+        fetch(`/tweets/${tweetId}/bookmark`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            this.classList.toggle("bookmarked", !isBookmarked);
+            console.log("ブックマーク処理完了");
+          })
+          .catch((error) => {
+            console.error("エラー:", error);
+          });
+      });
+
+    // ツイートクリックイベント
+    tweetElement.addEventListener("click", function () {
+      const tweetId = this.getAttribute("data-tweet-id");
+      window.location.href = `/tweets/${tweetId}`; // ツイート詳細ページにリダイレクト
+    });
+
+    tweetContainer.appendChild(tweetElement);
+    contentDiv.appendChild(interactionArea);
+    tweetElement.appendChild(contentDiv);
+
+    // メニューボタン
+    tweetMenu(
+      tweetElement,
+      tweet.tweet_id,
+      tweet.is_following,
+      tweet.user_id,
+      currentUserId
+    );
+  });
+}
