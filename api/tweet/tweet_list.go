@@ -34,9 +34,9 @@ func GetTweetList(c *gin.Context, cfg config.Config, userId int64) ([]sqlc.GetTw
 	// ツイート取得処理
 	queries := sqlc.New(db.DbConn())
 	tweets, err := queries.GetTweets(c, sqlc.GetTweetsParams{
-		Limit:      int32(pageSizeNum),
-		Offset:     int32((pageNum - 1) * pageSizeNum),
-		FollowerID: userId,
+		Limit:  int32(pageSizeNum),
+		Offset: int32((pageNum - 1) * pageSizeNum),
+		UserID: userId,
 	})
 	if err != nil {
 		log.Printf("Error retrieving tweets from the database: %v", err)

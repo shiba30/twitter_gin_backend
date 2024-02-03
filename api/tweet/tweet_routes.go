@@ -19,8 +19,9 @@ func TweetRoutes(router *gin.RouterGroup, cfg config.Config) {
 		tweet.POST("/:id/replies", middleware.AuthRequired(), reply.PostReply(cfg)) // コメント投稿機能
 		tweet.GET("/:id/replies", middleware.AuthRequired(), reply.GetReplies(cfg)) // コメント一覧取得機能
 
-		tweet.POST("/:id/like", middleware.AuthRequired(), actions.LikeAction(cfg))       // いいね機能
-		tweet.POST("/:id/retweet", middleware.AuthRequired(), actions.RetweetAction(cfg)) // リツイート機能
+		tweet.POST("/:id/like", middleware.AuthRequired(), actions.LikeAction(cfg))             // いいね機能
+		tweet.POST("/:id/retweet", middleware.AuthRequired(), actions.RetweetAction(cfg))       // リツイート機能
+		tweet.POST("/:id/bookmark", middleware.AuthRequired(), actions.PostBookmarkAction(cfg)) // ブックマーク追加削除機能
 
 		tweet.POST("/:id/follow", middleware.AuthRequired(), follow.Follow(cfg))     // フォロー機能
 		tweet.POST("/:id/unfollow", middleware.AuthRequired(), follow.UnFollow(cfg)) // フォロー解除機能
