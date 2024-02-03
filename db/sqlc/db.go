@@ -30,6 +30,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.createLikeStmt, err = db.PrepareContext(ctx, createLike); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateLike: %w", err)
 	}
+	if q.createMessageStmt, err = db.PrepareContext(ctx, createMessage); err != nil {
+		return nil, fmt.Errorf("error preparing query CreateMessage: %w", err)
+	}
 	if q.createRetweetStmt, err = db.PrepareContext(ctx, createRetweet); err != nil {
 		return nil, fmt.Errorf("error preparing query CreateRetweet: %w", err)
 	}
@@ -97,6 +100,11 @@ func (q *Queries) Close() error {
 	if q.createLikeStmt != nil {
 		if cerr := q.createLikeStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing createLikeStmt: %w", cerr)
+		}
+	}
+	if q.createMessageStmt != nil {
+		if cerr := q.createMessageStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing createMessageStmt: %w", cerr)
 		}
 	}
 	if q.createRetweetStmt != nil {
@@ -230,6 +238,7 @@ type Queries struct {
 	tx                           *sql.Tx
 	createFollowStmt             *sql.Stmt
 	createLikeStmt               *sql.Stmt
+	createMessageStmt            *sql.Stmt
 	createRetweetStmt            *sql.Stmt
 	createUserStmt               *sql.Stmt
 	deleteFollowStmt             *sql.Stmt
@@ -256,6 +265,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		tx:                           tx,
 		createFollowStmt:             q.createFollowStmt,
 		createLikeStmt:               q.createLikeStmt,
+		createMessageStmt:            q.createMessageStmt,
 		createRetweetStmt:            q.createRetweetStmt,
 		createUserStmt:               q.createUserStmt,
 		deleteFollowStmt:             q.deleteFollowStmt,

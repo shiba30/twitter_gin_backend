@@ -22,6 +22,14 @@ type Like struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+type Message struct {
+	ID         int32        `json:"id"`
+	SenderID   int32        `json:"sender_id"`
+	ReceiverID int32        `json:"receiver_id"`
+	Content    string       `json:"content"`
+	CreatedAt  sql.NullTime `json:"created_at"`
+}
+
 type Reply struct {
 	ID           int64          `json:"id"`
 	TweetID      int64          `json:"tweet_id"`
