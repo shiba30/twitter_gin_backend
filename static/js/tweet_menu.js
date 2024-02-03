@@ -1,5 +1,5 @@
 // ツイートにメニュー追加
-function tweetMenu(
+export function tweetMenu(
   tweetElement,
   tweetId,
   isFollowing,
@@ -93,5 +93,3 @@ function followAction(tweetId, isFollowing, tweetUserId, e) {
       console.error("エラー:", error);
     });
 }
-
-export { tweetMenu };

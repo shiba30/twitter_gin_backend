@@ -5,6 +5,7 @@
 package api
 
 import (
+	"example.com/golang_twitter/api/bookmark"
 	"example.com/golang_twitter/api/interfaces"
 	"example.com/golang_twitter/api/message"
 	"example.com/golang_twitter/api/middleware"
@@ -33,6 +34,7 @@ func (c *Controller) Routes(router *gin.Engine) {
 		user.SignupRoutes(api, c.Config)
 		user.LoginRoutes(api, c.Config, c.RedisConn)
 		tweet.TweetRoutes(api, c.Config)
+		bookmark.BookmarkRoutes(api, c.Config, c.RedisConn)
 		message.MessageRoutes(api, c.Config, c.RedisConn)
 	}
 

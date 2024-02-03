@@ -9,6 +9,13 @@ import (
 	"time"
 )
 
+type Bookmark struct {
+	ID        int64     `json:"id"`
+	TweetID   int64     `json:"tweet_id"`
+	UserID    int64     `json:"user_id"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
 type Follow struct {
 	FollowerID int64        `json:"follower_id"`
 	FolloweeID int64        `json:"followee_id"`
