@@ -5,9 +5,11 @@ import (
 
 	"example.com/golang_twitter/api"
 	"example.com/golang_twitter/api/interfaces"
+	"example.com/golang_twitter/api/message"
 	"example.com/golang_twitter/api/middleware"
 	"example.com/golang_twitter/config"
 	"example.com/golang_twitter/db"
+	sqlc "example.com/golang_twitter/db/sqlc"
 	"github.com/gin-gonic/gin"
 )
 
@@ -32,6 +34,12 @@ func main() {
 	}
 	defer redisConn.Close()
 
+	// SQLCクエリオブジェクトの生成
+	queries := sqlc.New(db.DbConn())
+
+	// WebSocketメッセージハンドリングゴルーチンの起動
+	go message.HandleMessages(queries)
+
 	router := gin.Default()
 
 	// redisConnを全てのルートで使用
@@ -44,7 +52,7 @@ func main() {
 		c.IndentedJSON(200, gin.H{"status": "ok"})
 	})
 
-	controller := api.NewController(cfg, redisConn)
+	controller := api.NewController(cfg, redisConn, queries)
 	controller.Routes(router)
 
 	log.Println("Server started!")

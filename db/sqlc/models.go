@@ -30,9 +30,9 @@ type Like struct {
 }
 
 type Message struct {
-	ID         int32        `json:"id"`
-	SenderID   int32        `json:"sender_id"`
-	ReceiverID int32        `json:"receiver_id"`
+	ID         int64        `json:"id"`
+	SenderID   int64        `json:"sender_id"`
+	ReceiverID int64        `json:"receiver_id"`
 	Content    string       `json:"content"`
 	CreatedAt  sql.NullTime `json:"created_at"`
 }

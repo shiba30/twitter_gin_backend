@@ -7,13 +7,12 @@ import (
 	"strconv"
 
 	"example.com/golang_twitter/config"
-	"example.com/golang_twitter/db"
 	sqlc "example.com/golang_twitter/db/sqlc"
 	"example.com/golang_twitter/utils"
 	"github.com/gin-gonic/gin"
 )
 
-func LikeAction(cfg config.Config) gin.HandlerFunc {
+func LikeAction(cfg config.Config, queries *sqlc.Queries) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// ツイートIDの取得
 		tweetID, err := strconv.ParseInt(c.Param("id"), 10, 64)
@@ -37,7 +36,6 @@ func LikeAction(cfg config.Config) gin.HandlerFunc {
 		}
 
 		// いいねのレコード確認
-		queries := sqlc.New(db.DbConn())
 		_, err = queries.GetLike(c, sqlc.GetLikeParams{
 			TweetID: tweetID,
 			UserID:  userID,

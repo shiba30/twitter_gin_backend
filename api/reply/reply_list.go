@@ -6,12 +6,11 @@ import (
 	"strconv"
 
 	"example.com/golang_twitter/config"
-	"example.com/golang_twitter/db"
 	sqlc "example.com/golang_twitter/db/sqlc"
 	"github.com/gin-gonic/gin"
 )
 
-func GetReplies(cfg config.Config) gin.HandlerFunc {
+func GetReplies(cfg config.Config, queries *sqlc.Queries) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// ツイートIDの取得
 		tweetID, err := strconv.ParseInt(c.Param("id"), 10, 64)
@@ -21,7 +20,6 @@ func GetReplies(cfg config.Config) gin.HandlerFunc {
 		}
 
 		// リプライデータの取得処理
-		queries := sqlc.New(db.DbConn())
 		replies, err := queries.GetTweetDetailReply(c, tweetID)
 		if err != nil {
 			log.Printf("failed to get replies: %v", err)

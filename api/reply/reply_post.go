@@ -4,7 +4,6 @@ import (
 	"log"
 
 	"example.com/golang_twitter/config"
-	"example.com/golang_twitter/db"
 	sqlc "example.com/golang_twitter/db/sqlc"
 	"example.com/golang_twitter/utils"
 	"github.com/gin-gonic/gin"
@@ -17,7 +16,7 @@ type ReplyForm struct {
 	Image   string `json:"image,omitempty"`
 }
 
-func PostReply(cfg config.Config) gin.HandlerFunc {
+func PostReply(cfg config.Config, queries *sqlc.Queries) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		form := ReplyForm{}
 
@@ -57,7 +56,6 @@ func PostReply(cfg config.Config) gin.HandlerFunc {
 		}
 
 		// コメントデータの保存処理
-		queries := sqlc.New(db.DbConn())
 		_, err = queries.InsertReply(c, sqlc.InsertReplyParams{
 			TweetID:   form.TweetId,
 			UserID:    userId,

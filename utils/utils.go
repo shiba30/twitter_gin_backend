@@ -9,12 +9,11 @@ import (
 	"time"
 
 	"example.com/golang_twitter/api/interfaces"
-	"example.com/golang_twitter/db"
 	sqlc "example.com/golang_twitter/db/sqlc"
 	"github.com/gin-gonic/gin"
 )
 
-func CurrentUser(c *gin.Context, redisConn *interfaces.RedisConn) (*sqlc.GetUserInfoRow, error) {
+func CurrentUser(c *gin.Context, redisConn *interfaces.RedisConn, queries *sqlc.Queries) (*sqlc.GetUserInfoRow, error) {
 	sessionID, _ := c.Cookie("session_id")
 
 	// RedisからユーザIDを取得
@@ -24,7 +23,6 @@ func CurrentUser(c *gin.Context, redisConn *interfaces.RedisConn) (*sqlc.GetUser
 	}
 
 	// データベースからユーザ情報を取得
-	queries := sqlc.New(db.DbConn())
 	userInfo, err := queries.GetUserInfo(c, userId)
 	if err != nil {
 		return nil, err

@@ -12,18 +12,21 @@ import (
 	"example.com/golang_twitter/api/tweet"
 	"example.com/golang_twitter/api/user"
 	"example.com/golang_twitter/config"
+	sqlc "example.com/golang_twitter/db/sqlc"
 	"github.com/gin-gonic/gin"
 )
 
 type Controller struct {
 	Config    config.Config
 	RedisConn *interfaces.RedisConn
+	Queries   *sqlc.Queries
 }
 
-func NewController(cfg config.Config, redisConn *interfaces.RedisConn) *Controller {
+func NewController(cfg config.Config, redisConn *interfaces.RedisConn, queries *sqlc.Queries) *Controller {
 	return &Controller{
 		Config:    cfg,
 		RedisConn: redisConn,
+		Queries:   queries,
 	}
 }
 
@@ -31,11 +34,11 @@ func (c *Controller) Routes(router *gin.Engine) {
 	// APIのルーティング
 	api := router.Group("/")
 	{
-		user.SignupRoutes(api, c.Config)
-		user.LoginRoutes(api, c.Config, c.RedisConn)
-		tweet.TweetRoutes(api, c.Config)
-		bookmark.BookmarkRoutes(api, c.Config, c.RedisConn)
-		message.MessageRoutes(api, c.Config, c.RedisConn)
+		user.SignupRoutes(api, c.Config, c.Queries)
+		user.LoginRoutes(api, c.Config, c.RedisConn, c.Queries)
+		tweet.TweetRoutes(api, c.Config, c.Queries)
+		bookmark.BookmarkRoutes(api, c.Config, c.RedisConn, c.Queries)
+		message.MessageRoutes(api, c.Config, c.RedisConn, c.Queries)
 	}
 
 	// ページレンダリングのルーティング
@@ -49,6 +52,6 @@ func (c *Controller) Routes(router *gin.Engine) {
 		c.HTML(200, "login.html", nil)
 	})
 	api.GET("/home", middleware.AuthRequired(), func(ctx *gin.Context) {
-		user.ShowHome(ctx, c.RedisConn, c.Config)
+		user.ShowHome(ctx, c.RedisConn, c.Config, c.Queries)
 	})
 }

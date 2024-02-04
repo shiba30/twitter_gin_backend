@@ -8,7 +8,6 @@ import (
 	"example.com/golang_twitter/api/interfaces"
 	"example.com/golang_twitter/config"
 	"example.com/golang_twitter/constants"
-	"example.com/golang_twitter/db"
 	sqlc "example.com/golang_twitter/db/sqlc"
 	"example.com/golang_twitter/utils"
 	"github.com/gin-gonic/gin"
@@ -19,7 +18,7 @@ type RedisGetter interface {
 	Get(ctx context.Context, key string) *redis.StringCmd
 }
 
-func GetBookmarks(cfg config.Config, redisConn *interfaces.RedisConn) gin.HandlerFunc {
+func GetBookmarks(cfg config.Config, redisConn *interfaces.RedisConn, queries *sqlc.Queries) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// セッションからユーザー情報を取得
 		sessionID, err := c.Cookie("session_id")
@@ -35,7 +34,7 @@ func GetBookmarks(cfg config.Config, redisConn *interfaces.RedisConn) gin.Handle
 			return
 		}
 
-		userInfo, err := utils.CurrentUser(c, redisConn)
+		userInfo, err := utils.CurrentUser(c, redisConn, queries)
 		if err != nil {
 			log.Printf("Failed to retrieve current user: %v", err)
 			c.Redirect(303, "/login")
@@ -48,7 +47,6 @@ func GetBookmarks(cfg config.Config, redisConn *interfaces.RedisConn) gin.Handle
 		}
 
 		// ユーザーのブックマークしたツイートを取得
-		queries := sqlc.New(db.DbConn())
 		tweets, err := queries.GetBookmarks(c, userID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "内部エラーが発生しました"})

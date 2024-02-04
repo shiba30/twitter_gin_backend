@@ -151,3 +151,35 @@ nav a {
   text-decoration: none;
   display: block;
 }
+
+.follow-link {
+  color: #fff;
+  text-decoration: none;
+}
+
+.follow-link:hover {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.sender_balloon {
+  justify-content: flex-end;
+  background-color: #0489f5;
+  color: #fff;
+  padding: 10px;
+  border-radius: 10px;
+  max-width: 300px;
+  margin-bottom: 20px;
+  align-self: flex-end;
+}
+
+.receiver_balloon {
+  justify-content: flex-start;
+  background-color: #e5e5e5;
+  color: #fff;
+  padding: 10px;
+  border-radius: 10px;
+  max-width: 300px;
+  margin-bottom: 20px;
+  align-self: flex-start;
+}

@@ -17,7 +17,7 @@ type ReTweetForm struct {
 	UserId int64 `json:"userId"`
 }
 
-func RetweetAction(cfg config.Config) gin.HandlerFunc {
+func RetweetAction(cfg config.Config, queries *sqlc.Queries) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// ツイートIDの取得
 		tweetID, err := strconv.ParseInt(c.Param("id"), 10, 64)
@@ -41,7 +41,6 @@ func RetweetAction(cfg config.Config) gin.HandlerFunc {
 		}
 
 		// リツイートの存在確認
-		queries := sqlc.New(db.DbConn())
 		_, err = queries.GetRetweet(c, sqlc.GetRetweetParams{
 			TweetID: tweetID,
 			UserID:  userID,
