@@ -7,7 +7,6 @@ import (
 	"net/smtp"
 
 	"example.com/golang_twitter/config"
-	db "example.com/golang_twitter/db"
 	sqlc "example.com/golang_twitter/db/sqlc"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
@@ -55,7 +54,7 @@ func sendActivationEmail(cfg config.Config, user sqlc.CreateUserRow, activationT
 }
 
 // ユーザーをアクティブにする
-func activateUser(c *gin.Context) {
+func activateUser(c *gin.Context, queries *sqlc.Queries) {
 	tokenStr := c.Param("token")
 	token := sql.NullString{
 		String: tokenStr,
@@ -63,7 +62,6 @@ func activateUser(c *gin.Context) {
 	}
 
 	// アクティベーショントークンでユーザ検索
-	queries := sqlc.New(db.DbConn())
 	userId, err := queries.GetUserByActivationToken(c, token)
 	if err != nil {
 		log.Printf("failed to find user by activation token: %v", err)

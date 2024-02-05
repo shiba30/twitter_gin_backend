@@ -5,7 +5,6 @@ import (
 
 	"example.com/golang_twitter/api/interfaces"
 	"example.com/golang_twitter/config"
-	db "example.com/golang_twitter/db"
 	sqlc "example.com/golang_twitter/db/sqlc"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -17,14 +16,14 @@ type loginForm struct {
 	Password string `json:"password"`
 }
 
-func LoginRoutes(router *gin.RouterGroup, cfg config.Config, redisConn *interfaces.RedisConn) {
+func LoginRoutes(router *gin.RouterGroup, cfg config.Config, redisConn *interfaces.RedisConn, queries *sqlc.Queries) {
 	router.POST("/login", func(c *gin.Context) {
-		login(c, cfg, redisConn)
+		login(c, cfg, redisConn, queries)
 	})
 }
 
 // ログイン機能
-func login(c *gin.Context, cfg config.Config, redisConn *interfaces.RedisConn) {
+func login(c *gin.Context, cfg config.Config, redisConn *interfaces.RedisConn, queries *sqlc.Queries) {
 	form := loginForm{}
 
 	// リクエストデータの確認
@@ -35,8 +34,6 @@ func login(c *gin.Context, cfg config.Config, redisConn *interfaces.RedisConn) {
 	}
 
 	// ユーザ情報取得
-	// sqlcのQueriesオブジェクトを初期化
-	queries := sqlc.New(db.DbConn())
 	userInfo, err := queries.GetUserByEmail(c, form.Email)
 	if err != nil {
 		log.Printf("failed to get user info: %v", err)

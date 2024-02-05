@@ -7,13 +7,12 @@ import (
 	"strconv"
 
 	"example.com/golang_twitter/config"
-	"example.com/golang_twitter/db"
 	sqlc "example.com/golang_twitter/db/sqlc"
 	"example.com/golang_twitter/utils"
 	"github.com/gin-gonic/gin"
 )
 
-func PostBookmarkAction(cfg config.Config) gin.HandlerFunc {
+func PostBookmarkAction(cfg config.Config, queries *sqlc.Queries) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// ツイートIDの取得
 		tweetID, err := strconv.ParseInt(c.Param("id"), 10, 64)
@@ -37,7 +36,6 @@ func PostBookmarkAction(cfg config.Config) gin.HandlerFunc {
 		}
 
 		// ブックマークのレコード確認
-		queries := sqlc.New(db.DbConn())
 		_, err = queries.GetBookmark(c, sqlc.GetBookmarkParams{
 			TweetID: tweetID,
 			UserID:  userID,

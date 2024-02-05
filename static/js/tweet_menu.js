@@ -59,8 +59,19 @@ export function tweetMenu(
     menuDropdown.style.display = "none";
   });
 
+  // メッセージリンクの作成
+  const messageLink = document.createElement("a");
+  messageLink.href = "#";
+  messageLink.innerText = "Message";
+  messageLink.addEventListener("click", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    window.location.href = "/message"; // メッセージページへ遷移
+  });
+
   // メニューボタンとドロップダウンをwrapperに追加
-  menuDropdown.appendChild(followLink); // ここでドロップダウンにフォローリンクを追加
+  menuDropdown.appendChild(followLink); // フォローリンク
+  menuDropdown.appendChild(messageLink); // メッセージリンク
   menuWrapper.appendChild(menuButton);
   menuWrapper.appendChild(menuDropdown);
 

@@ -8,6 +8,7 @@ import (
 	"example.com/golang_twitter/api/tweet"
 	"example.com/golang_twitter/config"
 	"example.com/golang_twitter/constants"
+	sqlc "example.com/golang_twitter/db/sqlc"
 	"example.com/golang_twitter/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
@@ -18,8 +19,8 @@ type RedisGetter interface {
 }
 
 // ホーム表示
-func ShowHome(c *gin.Context, redisConn *interfaces.RedisConn, cfg config.Config) {
-	userInfo, err := utils.CurrentUser(c, redisConn)
+func ShowHome(c *gin.Context, redisConn *interfaces.RedisConn, cfg config.Config, queries *sqlc.Queries) {
+	userInfo, err := utils.CurrentUser(c, redisConn, queries)
 	if err != nil {
 		log.Printf("Failed to retrieve current user: %v", err)
 		c.Redirect(303, "/login")
@@ -31,7 +32,7 @@ func ShowHome(c *gin.Context, redisConn *interfaces.RedisConn, cfg config.Config
 		avatarImage = userInfo.AvatarImage.String
 	}
 
-	tweets, err := tweet.GetTweetList(c, cfg, userInfo.ID)
+	tweets, err := tweet.GetTweetList(c, cfg, queries, userInfo.ID)
 	if err != nil {
 		log.Printf("Failed to retrieve tweets: %v", err)
 		c.JSON(500, gin.H{"error": "ツイートの取得に失敗しました"})

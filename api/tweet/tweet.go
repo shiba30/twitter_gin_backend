@@ -6,12 +6,11 @@ import (
 
 	"example.com/golang_twitter/config"
 	"example.com/golang_twitter/constants"
-	"example.com/golang_twitter/db"
 	sqlc "example.com/golang_twitter/db/sqlc"
 	"github.com/gin-gonic/gin"
 )
 
-func GetTweetDetail(cfg config.Config) gin.HandlerFunc {
+func GetTweetDetail(cfg config.Config, queries *sqlc.Queries) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tweetIDStr := c.Param("id") // URLからツイートIDを文字列として取得
 
@@ -24,7 +23,6 @@ func GetTweetDetail(cfg config.Config) gin.HandlerFunc {
 		}
 
 		// データベースからツイートの詳細情報を取得するロジック
-		queries := sqlc.New(db.DbConn())
 		tweetDetail, err := queries.GetTweetDetail(c, tweetID)
 		if err != nil {
 			// データベースからの取得に失敗した場合のエラー処理

@@ -7,7 +7,6 @@ import (
 	"regexp"
 
 	"example.com/golang_twitter/config"
-	db "example.com/golang_twitter/db"
 	sqlc "example.com/golang_twitter/db/sqlc"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
@@ -19,16 +18,21 @@ type signupForm struct {
 	DisplayName string `json:"displayName"`
 }
 
-func signupHandler(cfg config.Config) gin.HandlerFunc {
+func signupHandler(cfg config.Config, queries *sqlc.Queries) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		signup(c, cfg)
+		signup(c, cfg, queries)
 	}
 }
 
-func SignupRoutes(router *gin.RouterGroup, cfg config.Config) {
-	router.POST("/signup", signupHandler(cfg))
-	router.GET("/verify/:token", activateUser) // 確認メールのリンクが踏まれた時に呼び出される関数
+func activateUserHandler(cfg config.Config, queries *sqlc.Queries) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		activateUser(c, queries)
+	}
+}
 
+func SignupRoutes(router *gin.RouterGroup, cfg config.Config, queries *sqlc.Queries) {
+	router.POST("/signup", signupHandler(cfg, queries))
+	router.GET("/verify/:token", activateUserHandler(cfg, queries)) // 確認メールのリンクが踏まれた時に呼び出される関数
 }
 
 // パスワードバリデーション
@@ -50,7 +54,7 @@ func validatePassword(pwd string) bool {
 }
 
 // サインアップ機能
-func signup(c *gin.Context, cfg config.Config) {
+func signup(c *gin.Context, cfg config.Config, queries *sqlc.Queries) {
 	form := signupForm{}
 
 	// フォーム値チェック
@@ -73,9 +77,6 @@ func signup(c *gin.Context, cfg config.Config) {
 		c.JSON(400, gin.H{"error": "入力されたパスワードは登録できません。\n[半角英数字]、[小・大文字]・[!?-_]の記号1文字以上含めた8文字にしてください"})
 		return
 	}
-
-	// sqlcのQueriesオブジェクトを初期化
-	queries := sqlc.New(db.DbConn())
 
 	// 既に登録されているユーザであるかをチェック
 	_, err := queries.GetUserByEmail(c, form.Email)

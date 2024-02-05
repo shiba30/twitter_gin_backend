@@ -4,7 +4,6 @@ import (
 	"log"
 
 	"example.com/golang_twitter/config"
-	"example.com/golang_twitter/db"
 	sqlc "example.com/golang_twitter/db/sqlc"
 	"example.com/golang_twitter/utils"
 	"github.com/gin-gonic/gin"
@@ -14,7 +13,7 @@ type followForm struct {
 	UserId int64 `json:"userId"`
 }
 
-func followAction(c *gin.Context, isFollow bool, cfg config.Config) {
+func followAction(c *gin.Context, isFollow bool, cfg config.Config, queries *sqlc.Queries) {
 	form := followForm{}
 	if err := c.ShouldBind(&form); err != nil {
 		log.Printf("failed to bind data: %v", err)
@@ -35,8 +34,6 @@ func followAction(c *gin.Context, isFollow bool, cfg config.Config) {
 		c.JSON(500, gin.H{"error": "セッションからユーザー情報の取得に失敗しました"})
 		return
 	}
-
-	queries := sqlc.New(db.DbConn())
 
 	if isFollow {
 		// フォロー
@@ -63,15 +60,15 @@ func followAction(c *gin.Context, isFollow bool, cfg config.Config) {
 }
 
 // フォロー機能
-func Follow(cfg config.Config) gin.HandlerFunc {
+func Follow(cfg config.Config, queries *sqlc.Queries) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		followAction(c, true, cfg)
+		followAction(c, true, cfg, queries)
 	}
 }
 
 // フォロー解除機能
-func UnFollow(cfg config.Config) gin.HandlerFunc {
+func UnFollow(cfg config.Config, queries *sqlc.Queries) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		followAction(c, false, cfg)
+		followAction(c, false, cfg, queries)
 	}
 }

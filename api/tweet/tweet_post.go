@@ -4,7 +4,6 @@ import (
 	"log"
 
 	"example.com/golang_twitter/config"
-	"example.com/golang_twitter/db"
 	sqlc "example.com/golang_twitter/db/sqlc"
 	"example.com/golang_twitter/utils"
 	"github.com/gin-gonic/gin"
@@ -17,7 +16,7 @@ type TweetForm struct {
 	Image   string `json:"image,omitempty"`
 }
 
-func postTweet(cfg config.Config) gin.HandlerFunc {
+func postTweet(cfg config.Config, queries *sqlc.Queries) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		form := TweetForm{}
 
@@ -57,8 +56,6 @@ func postTweet(cfg config.Config) gin.HandlerFunc {
 		}
 
 		// ツイート保存処理
-		// sqlcのQueriesオブジェクトを初期化
-		queries := sqlc.New(db.DbConn())
 		_, err = queries.InsertTweet(c, sqlc.InsertTweetParams{
 			UserID:    userId,
 			Content:   form.Content,
