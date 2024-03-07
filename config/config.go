@@ -12,6 +12,7 @@ import (
 )
 
 type Config struct {
+	ClientAddress     string
 	ServerAddress     string
 	DBHost            string
 	DBPort            string
@@ -46,6 +47,10 @@ func LoadConfig() (Config, error) {
 	}
 
 	// 環境変数
+	cfg.ClientAddress = os.Getenv("CLIENT_ADDRESS")
+	if cfg.ClientAddress == "" {
+		return cfg, errors.New("CLIENT_ADDRESS is not set")
+	}
 	cfg.ServerAddress = os.Getenv("SERVER_ADDRESS")
 	if cfg.ServerAddress == "" {
 		return cfg, errors.New("SERVER_ADDRESS is not set")

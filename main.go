@@ -10,6 +10,7 @@ import (
 	"example.com/golang_twitter/config"
 	"example.com/golang_twitter/db"
 	sqlc "example.com/golang_twitter/db/sqlc"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -41,6 +42,16 @@ func main() {
 	go message.HandleMessages(queries)
 
 	router := gin.Default()
+
+	// CORSの設定
+	router.Use(cors.New(cors.Config{
+		// AllowOrigins:     []string{cfg.ClientAddress},
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"GET", "POST"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
 
 	// redisConnを全てのルートで使用
 	router.Use(middleware.RedisMiddleware(redisConn))

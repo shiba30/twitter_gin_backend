@@ -2,7 +2,8 @@
 INSERT INTO users (
     email,
     password,
-    display_name
+    display_name,
+    birth_date
 ) VALUES (
-    $1, $2, $3
-) RETURNING id, email, password, display_name;
+    $1, $2, $3, $4
+) RETURNING id, email, password, display_name, birth_date;
