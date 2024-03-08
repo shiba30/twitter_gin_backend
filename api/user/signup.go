@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/mail"
 	"regexp"
+	"time"
 
 	"example.com/golang_twitter/config"
 	sqlc "example.com/golang_twitter/db/sqlc"
@@ -16,6 +17,7 @@ type signupForm struct {
 	Email       string `json:"email"`
 	Password    string `json:"password"`
 	DisplayName string `json:"displayName"`
+	BirthDay    string `json:"birthday"`
 }
 
 func signupHandler(cfg config.Config, queries *sqlc.Queries) gin.HandlerFunc {
@@ -24,7 +26,7 @@ func signupHandler(cfg config.Config, queries *sqlc.Queries) gin.HandlerFunc {
 	}
 }
 
-func activateUserHandler(cfg config.Config, queries *sqlc.Queries) gin.HandlerFunc {
+func activateUserHandler(queries *sqlc.Queries) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		activateUser(c, queries)
 	}
@@ -32,7 +34,7 @@ func activateUserHandler(cfg config.Config, queries *sqlc.Queries) gin.HandlerFu
 
 func SignupRoutes(router *gin.RouterGroup, cfg config.Config, queries *sqlc.Queries) {
 	router.POST("/signup", signupHandler(cfg, queries))
-	router.GET("/verify/:token", activateUserHandler(cfg, queries)) // 確認メールのリンクが踏まれた時に呼び出される関数
+	router.GET("/verify/:token", activateUserHandler(queries)) // 確認メールのリンクが踏まれた時に呼び出される関数
 }
 
 // パスワードバリデーション
@@ -78,6 +80,27 @@ func signup(c *gin.Context, cfg config.Config, queries *sqlc.Queries) {
 		return
 	}
 
+	// ユーザ名チェック
+	if len(form.DisplayName) < 1 {
+		log.Println("display name check error")
+		c.JSON(400, gin.H{"error": "ユーザ名を入力してください"})
+		return
+	}
+
+	// 誕生日チェック
+	var birthDate sql.NullTime
+	if form.BirthDay != "" {
+		parsedDate, err := time.Parse("2006-01-02", form.BirthDay)
+		if err != nil {
+			log.Println("birth date parse error:", err)
+			c.JSON(400, gin.H{"error": "誕生日の形式が正しくありません"})
+			return
+		}
+		birthDate = sql.NullTime{Time: parsedDate, Valid: true}
+	} else {
+		birthDate = sql.NullTime{Valid: false}
+	}
+
 	// 既に登録されているユーザであるかをチェック
 	_, err := queries.GetUserByEmail(c, form.Email)
 	if err != nil {
@@ -105,6 +128,7 @@ func signup(c *gin.Context, cfg config.Config, queries *sqlc.Queries) {
 		Email:       form.Email,
 		Password:    string(hash_pwd),
 		DisplayName: form.DisplayName,
+		BirthDate:   birthDate,
 	})
 	if err != nil {
 		log.Printf("failed to create user: %v", err)

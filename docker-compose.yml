@@ -20,6 +20,7 @@ services:
       dockerfile: Dockerfile
       target: development
     environment:
+      CLIENT_ADDRESS: ${CLIENT_ADDRESS}
       SERVER_ADDRESS: ${SERVER_ADDRESS}
       DB_HOST: ${DB_HOST}
       DB_PORT: ${DB_PORT}

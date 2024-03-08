@@ -42,7 +42,7 @@ func sendActivationEmail(cfg config.Config, user sqlc.CreateUserRow, activationT
 		"\r\n" +
 		"ユーザ登録が完了しました!\r\n" +
 		"下記のリンクをクリックしてメールアドレスを確認してください。\r\n" +
-		"http://localhost:8080/verify/" + activationToken + "\r\n"
+		cfg.ClientAddress + "/verification/" + activationToken + "\r\n"
 
 	err := smtp.SendMail(cfg.SmtpHost+":"+cfg.SmtpPort, nil, cfg.From, []string{to}, []byte(body))
 	if err != nil {
@@ -78,9 +78,8 @@ func activateUser(c *gin.Context, queries *sqlc.Queries) {
 	if err != nil {
 		log.Printf("failed to activate user: %v", err)
 		c.JSON(500, gin.H{"error": "ユーザーのアクティベーションに失敗しました"})
-		return
+	} else {
+		log.Printf("activated user: %v", userId)
+		c.JSON(200, gin.H{"redirectURL": "/"})
 	}
-
-	log.Printf("activated user: %v", userId)
-	c.Redirect(303, "/login")
 }

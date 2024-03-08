@@ -4,7 +4,6 @@ import (
 	"log"
 
 	"example.com/golang_twitter/api/interfaces"
-	"example.com/golang_twitter/config"
 	sqlc "example.com/golang_twitter/db/sqlc"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -16,14 +15,14 @@ type loginForm struct {
 	Password string `json:"password"`
 }
 
-func LoginRoutes(router *gin.RouterGroup, cfg config.Config, redisConn *interfaces.RedisConn, queries *sqlc.Queries) {
+func LoginRoutes(router *gin.RouterGroup, redisConn *interfaces.RedisConn, queries *sqlc.Queries) {
 	router.POST("/login", func(c *gin.Context) {
-		login(c, cfg, redisConn, queries)
+		login(c, redisConn, queries)
 	})
 }
 
 // ログイン機能
-func login(c *gin.Context, cfg config.Config, redisConn *interfaces.RedisConn, queries *sqlc.Queries) {
+func login(c *gin.Context, redisConn *interfaces.RedisConn, queries *sqlc.Queries) {
 	form := loginForm{}
 
 	// リクエストデータの確認

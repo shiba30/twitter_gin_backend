@@ -7,39 +7,49 @@ package db
 
 import (
 	"context"
+	"database/sql"
 )
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
     email,
     password,
-    display_name
+    display_name,
+    birth_date
 ) VALUES (
-    $1, $2, $3
-) RETURNING id, email, password, display_name
+    $1, $2, $3, $4
+) RETURNING id, email, password, display_name, birth_date
 `
 
 type CreateUserParams struct {
-	Email       string `json:"email"`
-	Password    string `json:"password"`
-	DisplayName string `json:"display_name"`
+	Email       string       `json:"email"`
+	Password    string       `json:"password"`
+	DisplayName string       `json:"display_name"`
+	BirthDate   sql.NullTime `json:"birth_date"`
 }
 
 type CreateUserRow struct {
-	ID          int64  `json:"id"`
-	Email       string `json:"email"`
-	Password    string `json:"password"`
-	DisplayName string `json:"display_name"`
+	ID          int64        `json:"id"`
+	Email       string       `json:"email"`
+	Password    string       `json:"password"`
+	DisplayName string       `json:"display_name"`
+	BirthDate   sql.NullTime `json:"birth_date"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (CreateUserRow, error) {
-	row := q.queryRow(ctx, q.createUserStmt, createUser, arg.Email, arg.Password, arg.DisplayName)
+	row := q.queryRow(ctx, q.createUserStmt, createUser,
+		arg.Email,
+		arg.Password,
+		arg.DisplayName,
+		arg.BirthDate,
+	)
 	var i CreateUserRow
 	err := row.Scan(
 		&i.ID,
 		&i.Email,
 		&i.Password,
 		&i.DisplayName,
+		&i.BirthDate,
 	)
 	return i, err
 }

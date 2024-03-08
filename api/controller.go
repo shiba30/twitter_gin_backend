@@ -35,7 +35,7 @@ func (c *Controller) Routes(router *gin.Engine) {
 	api := router.Group("/")
 	{
 		user.SignupRoutes(api, c.Config, c.Queries)
-		user.LoginRoutes(api, c.Config, c.RedisConn, c.Queries)
+		user.LoginRoutes(api, c.RedisConn, c.Queries)
 		tweet.TweetRoutes(api, c.Config, c.Queries)
 		bookmark.BookmarkRoutes(api, c.Config, c.RedisConn, c.Queries)
 		message.MessageRoutes(api, c.Config, c.RedisConn, c.Queries)
