@@ -59,8 +59,8 @@ func login(c *gin.Context, redisConn *interfaces.RedisConn, queries *sqlc.Querie
 	sessionID := uuid.New().String()
 
 	// redisにsession情報を保存
-	// セッション有効期限:0(無期限)
-	err = redisConn.SetSession(c, sessionID, userInfo.ID, 0)
+	// セッション有効期限:1時間に設定
+	err = redisConn.SetSession(c, sessionID, userInfo.ID, 3600)
 	if err != nil {
 		log.Printf("failed to set session information: %v", err)
 		c.JSON(500, gin.H{"error": "内部エラーが発生しました"})
@@ -68,6 +68,7 @@ func login(c *gin.Context, redisConn *interfaces.RedisConn, queries *sqlc.Querie
 	}
 
 	// Set-Cookie headerを追加し、レスポンス返却
+	// 開発環境のため、Secure属性はfalseに設定
 	c.SetCookie("session_id", sessionID, 3600, "/", "", false, true)
 	c.JSON(200, gin.H{"status": "ログインに成功しました"})
 

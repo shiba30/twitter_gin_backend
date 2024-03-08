@@ -44,11 +44,21 @@ func main() {
 	router := gin.Default()
 
 	// CORSの設定
+	log.Println(cfg.ClientAddress)
 	router.Use(cors.New(cors.Config{
-		// AllowOrigins:     []string{cfg.ClientAddress},
-		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{"GET", "POST"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		AllowOrigins: []string{cfg.ClientAddress},
+		AllowMethods: []string{"GET", "POST", "OPTIONS"},
+		AllowHeaders: []string{"Origin",
+			"Content-Type",
+			"Authorization",
+			"Accept",
+			"X-CSRF-Token",
+			"X-Requested-With",
+			"Access-Control-Allow-Origin",
+			"Access-Control-Allow-Methods",
+			"Access-Control-Allow-Headers",
+			"Access-Control-Expose-Headers",
+			"Access-Control-Allow-Credentials"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 	}))
