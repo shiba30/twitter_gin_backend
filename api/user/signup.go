@@ -119,7 +119,7 @@ func signup(c *gin.Context, cfg config.Config, queries *sqlc.Queries) {
 	hash_pwd, err := bcrypt.GenerateFromPassword([]byte(form.Password), bcrypt.DefaultCost)
 	if err != nil {
 		log.Printf("failed to hash password: %v", err)
-		c.JSON(500, gin.H{"error": "ユーザ情報登録に失敗しました"})
+		c.JSON(500, gin.H{"error": "パスワードのハッシュ化に失敗しました"})
 		return
 	}
 
