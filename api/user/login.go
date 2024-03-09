@@ -59,8 +59,8 @@ func login(c *gin.Context, redisConn *interfaces.RedisConn, queries *sqlc.Querie
 	sessionID := uuid.New().String()
 
 	// redisにsession情報を保存
-	// セッション有効期限:1時間に設定
-	err = redisConn.SetSession(c, sessionID, userInfo.ID, 3600)
+	// セッション有効期限:無制限に設定
+	err = redisConn.SetSession(c, sessionID, userInfo.ID, 0)
 	if err != nil {
 		log.Printf("failed to set session information: %v", err)
 		c.JSON(500, gin.H{"error": "内部エラーが発生しました"})

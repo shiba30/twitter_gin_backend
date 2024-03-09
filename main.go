@@ -44,7 +44,6 @@ func main() {
 	router := gin.Default()
 
 	// CORSの設定
-	log.Println(cfg.ClientAddress)
 	router.Use(cors.New(cors.Config{
 		AllowOrigins: []string{cfg.ClientAddress},
 		AllowMethods: []string{"GET", "POST", "OPTIONS"},
