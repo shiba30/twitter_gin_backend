@@ -80,6 +80,6 @@ func activateUser(c *gin.Context, queries *sqlc.Queries) {
 		c.JSON(500, gin.H{"error": "ユーザーのアクティベーションに失敗しました"})
 	} else {
 		log.Printf("activated user: %v", userId)
-		c.JSON(200, gin.H{"redirectURL": "/"})
+		c.JSON(200, gin.H{"status": "ユーザーのアクティベーションに成功しました"})
 	}
 }
