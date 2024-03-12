@@ -15,7 +15,7 @@ const getTweetDetailReply = `-- name: GetTweetDetailReply :many
 SELECT
     users.id,
     users.display_name,
-    users.profile_image AS user_image,
+    users.profile_image AS profile_image,
     users.avatar_image AS avatar_image,
     replies.id AS reply_id,
     replies.tweet_id AS tweet_id,
@@ -35,7 +35,7 @@ ORDER BY
 type GetTweetDetailReplyRow struct {
 	ID           int64          `json:"id"`
 	DisplayName  string         `json:"display_name"`
-	UserImage    sql.NullString `json:"user_image"`
+	ProfileImage sql.NullString `json:"profile_image"`
 	AvatarImage  sql.NullString `json:"avatar_image"`
 	ReplyID      int64          `json:"reply_id"`
 	TweetID      int64          `json:"tweet_id"`
@@ -56,7 +56,7 @@ func (q *Queries) GetTweetDetailReply(ctx context.Context, tweetID int64) ([]Get
 		if err := rows.Scan(
 			&i.ID,
 			&i.DisplayName,
-			&i.UserImage,
+			&i.ProfileImage,
 			&i.AvatarImage,
 			&i.ReplyID,
 			&i.TweetID,

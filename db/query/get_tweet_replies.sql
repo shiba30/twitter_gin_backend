@@ -2,7 +2,7 @@
 SELECT
     users.id,
     users.display_name,
-    users.profile_image AS user_image,
+    users.profile_image AS profile_image,
     users.avatar_image AS avatar_image,
     replies.id AS reply_id,
     replies.tweet_id AS tweet_id,

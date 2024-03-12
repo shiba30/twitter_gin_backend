@@ -7,7 +7,6 @@ import (
 
 	"example.com/golang_twitter/api/interfaces"
 	"example.com/golang_twitter/config"
-	"example.com/golang_twitter/constants"
 	sqlc "example.com/golang_twitter/db/sqlc"
 	"example.com/golang_twitter/utils"
 	"github.com/gin-gonic/gin"
@@ -41,11 +40,6 @@ func GetBookmarks(cfg config.Config, redisConn *interfaces.RedisConn, queries *s
 			return
 		}
 
-		avatarImage := constants.DefaultAvatarImage
-		if userInfo.AvatarImage.Valid {
-			avatarImage = userInfo.AvatarImage.String
-		}
-
 		// ユーザーのブックマークしたツイートを取得
 		tweets, err := queries.GetBookmarks(c, userID)
 		if err != nil {
@@ -62,10 +56,10 @@ func GetBookmarks(cfg config.Config, redisConn *interfaces.RedisConn, queries *s
 		} else {
 			// HTMLページを表示
 			c.HTML(200, "bookmarks.html", gin.H{
-				"userId":      userInfo.ID,
-				"displayName": userInfo.DisplayName,
-				"avatarImage": avatarImage,
-				"tweets":      tweets,
+				"userId":       userInfo.ID,
+				"displayName":  userInfo.DisplayName,
+				"profileImage": userInfo.ProfileImage,
+				"tweets":       tweets,
 			})
 		}
 	}

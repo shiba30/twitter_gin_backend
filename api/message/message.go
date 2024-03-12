@@ -9,7 +9,6 @@ import (
 
 	"example.com/golang_twitter/api/interfaces"
 	"example.com/golang_twitter/config"
-	"example.com/golang_twitter/constants"
 	sqlc "example.com/golang_twitter/db/sqlc"
 	"example.com/golang_twitter/utils"
 	"github.com/gin-gonic/gin"
@@ -38,11 +37,6 @@ func GetMessagePage(cfg config.Config, redisConn *interfaces.RedisConn, queries 
 			return
 		}
 
-		avatarImage := constants.DefaultAvatarImage
-		if userInfo.AvatarImage.Valid {
-			avatarImage = userInfo.AvatarImage.String
-		}
-
 		// フォローデータ取得
 		follows, err := queries.GetFollows(c, userInfo.ID)
 		if err != nil {
@@ -52,10 +46,10 @@ func GetMessagePage(cfg config.Config, redisConn *interfaces.RedisConn, queries 
 		}
 
 		c.HTML(200, "message.html", gin.H{
-			"userId":      userInfo.ID,
-			"displayName": userInfo.DisplayName,
-			"avatarImage": avatarImage,
-			"follows":     follows,
+			"userId":       userInfo.ID,
+			"displayName":  userInfo.DisplayName,
+			"profileImage": userInfo.ProfileImage,
+			"follows":      follows,
 		})
 	}
 }

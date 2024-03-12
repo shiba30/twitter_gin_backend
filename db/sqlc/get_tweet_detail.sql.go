@@ -14,44 +14,69 @@ import (
 const getTweetDetail = `-- name: GetTweetDetail :one
 SELECT
     users.id,
-    users.display_name,
-    users.profile_image AS user_image,
-    users.avatar_image AS avatar_image,
+    users.display_name AS user_name,
+    users.profile_image AS profile_image,
     tweets.id AS tweet_id,
     tweets.content AS tweet_content,
     tweets.image_path AS image_path,
-    tweets.created_at AS tweet_date
+    tweets.created_at AS tweet_date,
+    tweets.is_retweet AS is_retweet,
+    COUNT(DISTINCT replies.id) AS replies_count,
+    COUNT(DISTINCT likes.id) AS likes_count,
+    COUNT(DISTINCT retweets.id) AS retweets_count,
+    CASE WHEN bookmarks.tweet_id IS NOT NULL THEN true ELSE false END AS is_bookmarked
 FROM
     tweets
 JOIN
     users ON tweets.user_id = users.id
+LEFT JOIN
+    replies ON tweets.id = replies.tweet_id
+LEFT JOIN
+    retweets ON tweets.id = retweets.tweet_id
+LEFT JOIN
+    likes ON tweets.id = likes.tweet_id
+LEFT JOIN
+    bookmarks ON tweets.id = bookmarks.tweet_id AND bookmarks.user_id = $2
 WHERE
     tweets.id = $1
 `
 
-type GetTweetDetailRow struct {
-	ID           int64          `json:"id"`
-	DisplayName  string         `json:"display_name"`
-	UserImage    sql.NullString `json:"user_image"`
-	AvatarImage  sql.NullString `json:"avatar_image"`
-	TweetID      int64          `json:"tweet_id"`
-	TweetContent string         `json:"tweet_content"`
-	ImagePath    sql.NullString `json:"image_path"`
-	TweetDate    time.Time      `json:"tweet_date"`
+type GetTweetDetailParams struct {
+	ID     int64 `json:"id"`
+	UserID int64 `json:"user_id"`
 }
 
-func (q *Queries) GetTweetDetail(ctx context.Context, id int64) (GetTweetDetailRow, error) {
-	row := q.queryRow(ctx, q.getTweetDetailStmt, getTweetDetail, id)
+type GetTweetDetailRow struct {
+	ID            int64          `json:"id"`
+	UserName      string         `json:"user_name"`
+	ProfileImage  sql.NullString `json:"profile_image"`
+	TweetID       int64          `json:"tweet_id"`
+	TweetContent  string         `json:"tweet_content"`
+	ImagePath     sql.NullString `json:"image_path"`
+	TweetDate     time.Time      `json:"tweet_date"`
+	IsRetweet     bool           `json:"is_retweet"`
+	RepliesCount  int64          `json:"replies_count"`
+	LikesCount    int64          `json:"likes_count"`
+	RetweetsCount int64          `json:"retweets_count"`
+	IsBookmarked  bool           `json:"is_bookmarked"`
+}
+
+func (q *Queries) GetTweetDetail(ctx context.Context, arg GetTweetDetailParams) (GetTweetDetailRow, error) {
+	row := q.queryRow(ctx, q.getTweetDetailStmt, getTweetDetail, arg.ID, arg.UserID)
 	var i GetTweetDetailRow
 	err := row.Scan(
 		&i.ID,
-		&i.DisplayName,
-		&i.UserImage,
-		&i.AvatarImage,
+		&i.UserName,
+		&i.ProfileImage,
 		&i.TweetID,
 		&i.TweetContent,
 		&i.ImagePath,
 		&i.TweetDate,
+		&i.IsRetweet,
+		&i.RepliesCount,
+		&i.LikesCount,
+		&i.RetweetsCount,
+		&i.IsBookmarked,
 	)
 	return i, err
 }

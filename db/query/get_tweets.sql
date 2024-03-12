@@ -2,7 +2,7 @@
 SELECT
     users.id AS user_id,
     users.display_name AS user_name,
-    users.profile_image AS user_image,
+    users.profile_image AS profile_image,
     tweets.id AS tweet_id,
     tweets.content AS tweet_content,
     tweets.image_path AS image_path,
