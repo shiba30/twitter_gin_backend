@@ -39,6 +39,8 @@ LEFT JOIN
     bookmarks ON tweets.id = bookmarks.tweet_id AND bookmarks.user_id = $2
 WHERE
     tweets.id = $1
+GROUP BY
+    users.id, tweets.id, bookmarks.tweet_id
 `
 
 type GetTweetDetailParams struct {

@@ -52,6 +52,7 @@ func GetTweetDetail(cfg config.Config, queries *sqlc.Queries) gin.HandlerFunc {
 		c.JSON(200, gin.H{
 			"tweet_id":       tweetDetail.TweetID,
 			"user_id":        tweetDetail.ID,
+			"user_name":      tweetDetail.UserName,
 			"profile_image":  tweetDetail.ProfileImage,
 			"tweet_date":     tweetDetail.TweetDate,
 			"tweet_content":  tweetDetail.TweetContent,
