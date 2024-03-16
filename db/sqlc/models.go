@@ -66,19 +66,19 @@ type Tweet struct {
 }
 
 type User struct {
-	ID               int64          `json:"id"`
-	Email            string         `json:"email"`
-	Password         string         `json:"password"`
-	PhoneNumber      sql.NullString `json:"phone_number"`
-	DisplayName      string         `json:"display_name"`
-	SelfIntroduction sql.NullString `json:"self_introduction"`
-	Location         sql.NullString `json:"location"`
-	Website          sql.NullString `json:"website"`
-	BirthDate        sql.NullTime   `json:"birth_date"`
-	ProfileImage     sql.NullString `json:"profile_image"`
-	AvatarImage      sql.NullString `json:"avatar_image"`
-	CreatedAt        time.Time      `json:"created_at"`
-	UpdatedAt        time.Time      `json:"updated_at"`
-	ActivationToken  sql.NullString `json:"activation_token"`
-	IsActive         bool           `json:"is_active"`
+	ID              int64          `json:"id"`
+	Email           string         `json:"email"`
+	Password        string         `json:"password"`
+	PhoneNumber     sql.NullString `json:"phone_number"`
+	DisplayName     string         `json:"display_name"`
+	Dio             sql.NullString `json:"dio"`
+	Location        sql.NullString `json:"location"`
+	Website         sql.NullString `json:"website"`
+	BirthDate       sql.NullTime   `json:"birth_date"`
+	ProfileImage    sql.NullString `json:"profile_image"`
+	HeaderImage     sql.NullString `json:"header_image"`
+	CreatedAt       time.Time      `json:"created_at"`
+	UpdatedAt       time.Time      `json:"updated_at"`
+	ActivationToken sql.NullString `json:"activation_token"`
+	IsActive        bool           `json:"is_active"`
 }

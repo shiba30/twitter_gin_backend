@@ -8,6 +8,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"time"
 )
 
 const getUserInfo = `-- name: GetUserInfo :one
@@ -17,12 +18,13 @@ SELECT
     password,
     phone_number,
     display_name,
-    self_introduction,
+    dio,
     location,
     website,
     birth_date,
     profile_image,
-    avatar_image,
+    header_image,
+    created_at,
     is_active
 FROM
     users
@@ -31,18 +33,19 @@ WHERE
 `
 
 type GetUserInfoRow struct {
-	ID               int64          `json:"id"`
-	Email            string         `json:"email"`
-	Password         string         `json:"password"`
-	PhoneNumber      sql.NullString `json:"phone_number"`
-	DisplayName      string         `json:"display_name"`
-	SelfIntroduction sql.NullString `json:"self_introduction"`
-	Location         sql.NullString `json:"location"`
-	Website          sql.NullString `json:"website"`
-	BirthDate        sql.NullTime   `json:"birth_date"`
-	ProfileImage     sql.NullString `json:"profile_image"`
-	AvatarImage      sql.NullString `json:"avatar_image"`
-	IsActive         bool           `json:"is_active"`
+	ID           int64          `json:"id"`
+	Email        string         `json:"email"`
+	Password     string         `json:"password"`
+	PhoneNumber  sql.NullString `json:"phone_number"`
+	DisplayName  string         `json:"display_name"`
+	Dio          sql.NullString `json:"dio"`
+	Location     sql.NullString `json:"location"`
+	Website      sql.NullString `json:"website"`
+	BirthDate    sql.NullTime   `json:"birth_date"`
+	ProfileImage sql.NullString `json:"profile_image"`
+	HeaderImage  sql.NullString `json:"header_image"`
+	CreatedAt    time.Time      `json:"created_at"`
+	IsActive     bool           `json:"is_active"`
 }
 
 func (q *Queries) GetUserInfo(ctx context.Context, id int64) (GetUserInfoRow, error) {
@@ -54,12 +57,13 @@ func (q *Queries) GetUserInfo(ctx context.Context, id int64) (GetUserInfoRow, er
 		&i.Password,
 		&i.PhoneNumber,
 		&i.DisplayName,
-		&i.SelfIntroduction,
+		&i.Dio,
 		&i.Location,
 		&i.Website,
 		&i.BirthDate,
 		&i.ProfileImage,
-		&i.AvatarImage,
+		&i.HeaderImage,
+		&i.CreatedAt,
 		&i.IsActive,
 	)
 	return i, err

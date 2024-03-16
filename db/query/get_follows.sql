@@ -4,7 +4,7 @@ SELECT
     follows.followee_id,
     follows.created_at,
     users.display_name,
-    COALESCE(users.avatar_image, '') AS avatar_image
+    COALESCE(users.profile_image, '') AS profile_image
 FROM
     follows
 INNER JOIN

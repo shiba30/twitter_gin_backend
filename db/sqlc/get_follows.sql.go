@@ -16,7 +16,7 @@ SELECT
     follows.followee_id,
     follows.created_at,
     users.display_name,
-    COALESCE(users.avatar_image, '') AS avatar_image
+    COALESCE(users.profile_image, '') AS profile_image
 FROM
     follows
 INNER JOIN
@@ -28,11 +28,11 @@ ORDER BY
 `
 
 type GetFollowsRow struct {
-	FollowerID  int64        `json:"follower_id"`
-	FolloweeID  int64        `json:"followee_id"`
-	CreatedAt   sql.NullTime `json:"created_at"`
-	DisplayName string       `json:"display_name"`
-	AvatarImage string       `json:"avatar_image"`
+	FollowerID   int64        `json:"follower_id"`
+	FolloweeID   int64        `json:"followee_id"`
+	CreatedAt    sql.NullTime `json:"created_at"`
+	DisplayName  string       `json:"display_name"`
+	ProfileImage string       `json:"profile_image"`
 }
 
 func (q *Queries) GetFollows(ctx context.Context, followerID int64) ([]GetFollowsRow, error) {
@@ -49,7 +49,7 @@ func (q *Queries) GetFollows(ctx context.Context, followerID int64) ([]GetFollow
 			&i.FolloweeID,
 			&i.CreatedAt,
 			&i.DisplayName,
-			&i.AvatarImage,
+			&i.ProfileImage,
 		); err != nil {
 			return nil, err
 		}

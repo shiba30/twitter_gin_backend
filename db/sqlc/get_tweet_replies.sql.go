@@ -16,7 +16,6 @@ SELECT
     users.id,
     users.display_name,
     users.profile_image AS profile_image,
-    users.avatar_image AS avatar_image,
     replies.id AS reply_id,
     replies.tweet_id AS tweet_id,
     replies.content AS reply_content,
@@ -36,7 +35,6 @@ type GetTweetDetailReplyRow struct {
 	ID           int64          `json:"id"`
 	DisplayName  string         `json:"display_name"`
 	ProfileImage sql.NullString `json:"profile_image"`
-	AvatarImage  sql.NullString `json:"avatar_image"`
 	ReplyID      int64          `json:"reply_id"`
 	TweetID      int64          `json:"tweet_id"`
 	ReplyContent string         `json:"reply_content"`
@@ -57,7 +55,6 @@ func (q *Queries) GetTweetDetailReply(ctx context.Context, tweetID int64) ([]Get
 			&i.ID,
 			&i.DisplayName,
 			&i.ProfileImage,
-			&i.AvatarImage,
 			&i.ReplyID,
 			&i.TweetID,
 			&i.ReplyContent,

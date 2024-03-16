@@ -5,12 +5,13 @@ SELECT
     password,
     phone_number,
     display_name,
-    self_introduction,
+    dio,
     location,
     website,
     birth_date,
     profile_image,
-    avatar_image,
+    header_image,
+    created_at,
     is_active
 FROM
     users
