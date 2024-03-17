@@ -5,7 +5,7 @@ SELECT
     password,
     phone_number,
     display_name,
-    dio,
+    bio,
     location,
     website,
     birth_date,

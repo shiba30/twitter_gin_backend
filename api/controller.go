@@ -36,6 +36,7 @@ func (c *Controller) Routes(router *gin.Engine) {
 	{
 		user.SignupRoutes(api, c.Config, c.Queries)
 		user.LoginRoutes(api, c.RedisConn, c.Queries)
+		user.ProfileRoutes(api, c.Config, c.RedisConn, c.Queries)
 		tweet.TweetRoutes(api, c.Config, c.Queries)
 		bookmark.BookmarkRoutes(api, c.Config, c.RedisConn, c.Queries)
 		message.MessageRoutes(api, c.Config, c.RedisConn, c.Queries)

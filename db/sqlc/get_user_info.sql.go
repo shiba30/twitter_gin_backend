@@ -18,7 +18,7 @@ SELECT
     password,
     phone_number,
     display_name,
-    dio,
+    bio,
     location,
     website,
     birth_date,
@@ -38,7 +38,7 @@ type GetUserInfoRow struct {
 	Password     string         `json:"password"`
 	PhoneNumber  sql.NullString `json:"phone_number"`
 	DisplayName  string         `json:"display_name"`
-	Dio          sql.NullString `json:"dio"`
+	Bio          sql.NullString `json:"bio"`
 	Location     sql.NullString `json:"location"`
 	Website      sql.NullString `json:"website"`
 	BirthDate    sql.NullTime   `json:"birth_date"`
@@ -57,7 +57,7 @@ func (q *Queries) GetUserInfo(ctx context.Context, id int64) (GetUserInfoRow, er
 		&i.Password,
 		&i.PhoneNumber,
 		&i.DisplayName,
-		&i.Dio,
+		&i.Bio,
 		&i.Location,
 		&i.Website,
 		&i.BirthDate,
