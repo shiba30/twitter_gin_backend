@@ -32,9 +32,16 @@ DELETE FROM
     tweets
 WHERE
     id = $1
+    AND
+    user_id = $2
 `
 
-func (q *Queries) DeleteTweet(ctx context.Context, id int64) error {
-	_, err := q.exec(ctx, q.deleteTweetStmt, deleteTweet, id)
+type DeleteTweetParams struct {
+	ID     int64 `json:"id"`
+	UserID int64 `json:"user_id"`
+}
+
+func (q *Queries) DeleteTweet(ctx context.Context, arg DeleteTweetParams) error {
+	_, err := q.exec(ctx, q.deleteTweetStmt, deleteTweet, arg.ID, arg.UserID)
 	return err
 }

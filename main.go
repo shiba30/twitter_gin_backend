@@ -46,7 +46,7 @@ func main() {
 	// CORSの設定
 	router.Use(cors.New(cors.Config{
 		AllowOrigins: []string{cfg.ClientAddress},
-		AllowMethods: []string{"GET", "POST", "OPTIONS"},
+		AllowMethods: []string{"GET", "POST", "DELETE", "OPTIONS"},
 		AllowHeaders: []string{"Origin",
 			"Content-Type",
 			"Authorization",
