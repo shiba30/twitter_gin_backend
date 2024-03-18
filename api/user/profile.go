@@ -45,8 +45,9 @@ func GetProfile(redisConn *interfaces.RedisConn, queries *sqlc.Queries) gin.Hand
 		}
 
 		c.JSON(200, gin.H{
-			"profile": userInfo,
-			"tweets":  tweets,
+			"profile":       userInfo,
+			"tweets":        tweets,
+			"currentUserId": userInfo.ID,
 		})
 	}
 }

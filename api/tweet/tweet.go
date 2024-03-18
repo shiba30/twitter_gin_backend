@@ -61,7 +61,6 @@ func GetTweetDetail(cfg config.Config, queries *sqlc.Queries) gin.HandlerFunc {
 			"likes_count":    tweetDetail.LikesCount,
 			"retweets_count": tweetDetail.RetweetsCount,
 			"is_bookmarked":  tweetDetail.IsBookmarked,
-			"login_user_Id":  currentUserId,
 		})
 	}
 }
