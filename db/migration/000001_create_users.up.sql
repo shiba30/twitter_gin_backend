@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255) NOT NULL,
     phone_number VARCHAR(255) UNIQUE,
     display_name VARCHAR(50) NOT NULL,
-    dio TEXT,
+    bio TEXT,
     location VARCHAR(255),
     website VARCHAR(255),
     birth_date DATE,

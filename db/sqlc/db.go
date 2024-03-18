@@ -84,6 +84,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getTweetsStmt, err = db.PrepareContext(ctx, getTweets); err != nil {
 		return nil, fmt.Errorf("error preparing query GetTweets: %w", err)
 	}
+	if q.getTweetsByUserStmt, err = db.PrepareContext(ctx, getTweetsByUser); err != nil {
+		return nil, fmt.Errorf("error preparing query GetTweetsByUser: %w", err)
+	}
 	if q.getUserByActivationTokenStmt, err = db.PrepareContext(ctx, getUserByActivationToken); err != nil {
 		return nil, fmt.Errorf("error preparing query GetUserByActivationToken: %w", err)
 	}
@@ -104,6 +107,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	}
 	if q.updateUserStmt, err = db.PrepareContext(ctx, updateUser); err != nil {
 		return nil, fmt.Errorf("error preparing query UpdateUser: %w", err)
+	}
+	if q.updateUserProfileStmt, err = db.PrepareContext(ctx, updateUserProfile); err != nil {
+		return nil, fmt.Errorf("error preparing query UpdateUserProfile: %w", err)
 	}
 	return &q, nil
 }
@@ -210,6 +216,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getTweetsStmt: %w", cerr)
 		}
 	}
+	if q.getTweetsByUserStmt != nil {
+		if cerr := q.getTweetsByUserStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getTweetsByUserStmt: %w", cerr)
+		}
+	}
 	if q.getUserByActivationTokenStmt != nil {
 		if cerr := q.getUserByActivationTokenStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getUserByActivationTokenStmt: %w", cerr)
@@ -243,6 +254,11 @@ func (q *Queries) Close() error {
 	if q.updateUserStmt != nil {
 		if cerr := q.updateUserStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing updateUserStmt: %w", cerr)
+		}
+	}
+	if q.updateUserProfileStmt != nil {
+		if cerr := q.updateUserProfileStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing updateUserProfileStmt: %w", cerr)
 		}
 	}
 	return err
@@ -304,6 +320,7 @@ type Queries struct {
 	getTweetDetailStmt           *sql.Stmt
 	getTweetDetailReplyStmt      *sql.Stmt
 	getTweetsStmt                *sql.Stmt
+	getTweetsByUserStmt          *sql.Stmt
 	getUserByActivationTokenStmt *sql.Stmt
 	getUserByEmailStmt           *sql.Stmt
 	getUserInfoStmt              *sql.Stmt
@@ -311,6 +328,7 @@ type Queries struct {
 	insertReplyStmt              *sql.Stmt
 	insertTweetStmt              *sql.Stmt
 	updateUserStmt               *sql.Stmt
+	updateUserProfileStmt        *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
@@ -337,6 +355,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		getTweetDetailStmt:           q.getTweetDetailStmt,
 		getTweetDetailReplyStmt:      q.getTweetDetailReplyStmt,
 		getTweetsStmt:                q.getTweetsStmt,
+		getTweetsByUserStmt:          q.getTweetsByUserStmt,
 		getUserByActivationTokenStmt: q.getUserByActivationTokenStmt,
 		getUserByEmailStmt:           q.getUserByEmailStmt,
 		getUserInfoStmt:              q.getUserInfoStmt,
@@ -344,5 +363,6 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		insertReplyStmt:              q.insertReplyStmt,
 		insertTweetStmt:              q.insertTweetStmt,
 		updateUserStmt:               q.updateUserStmt,
+		updateUserProfileStmt:        q.updateUserProfileStmt,
 	}
 }

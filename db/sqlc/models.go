@@ -71,7 +71,7 @@ type User struct {
 	Password        string         `json:"password"`
 	PhoneNumber     sql.NullString `json:"phone_number"`
 	DisplayName     string         `json:"display_name"`
-	Dio             sql.NullString `json:"dio"`
+	Bio             sql.NullString `json:"bio"`
 	Location        sql.NullString `json:"location"`
 	Website         sql.NullString `json:"website"`
 	BirthDate       sql.NullTime   `json:"birth_date"`

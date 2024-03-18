@@ -1,8 +1,10 @@
 package utils
 
 import (
+	"crypto/rand"
 	"database/sql"
 	"encoding/base64"
+	"encoding/hex"
 	"fmt"
 	"log"
 	"os"
@@ -58,15 +60,23 @@ func ProcessImage(imageData string, dir string, userId int64) (sql.NullString, e
 		}
 
 		if _, err := os.Stat(dir); os.IsNotExist(err) {
-			os.MkdirAll(dir, 0755)
+			if err := os.MkdirAll(dir, 0755); err != nil {
+				log.Printf("failed to create directory: %v", err)
+				return imagePath, err
+			}
 		}
 
-		filename := fmt.Sprintf("%d_%d.png", time.Now().Unix(), userId)
+		randomPart, err := generateRandomString(8)
+		if err != nil {
+			log.Printf("failed to generate random part for filename: %v", err)
+			return imagePath, err
+		}
+
+		filename := fmt.Sprintf("%d_%d_%s.png", time.Now().Unix(), userId, randomPart)
 		path := dir + filename
 		imagePath = sql.NullString{String: path, Valid: true}
 
-		err := os.WriteFile(path, data, 0644)
-		if err != nil {
+		if err := os.WriteFile(path, data, 0644); err != nil {
 			log.Printf("failed to save image data to local file: %v", err)
 			return imagePath, err
 		}
@@ -74,4 +84,12 @@ func ProcessImage(imageData string, dir string, userId int64) (sql.NullString, e
 		imagePath = sql.NullString{Valid: false}
 	}
 	return imagePath, nil
+}
+
+func generateRandomString(n int) (string, error) {
+	b := make([]byte, n)
+	if _, err := rand.Read(b); err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(b), nil
 }
