@@ -9,4 +9,6 @@ WHERE
 DELETE FROM
     tweets
 WHERE
-    id = $1;
+    id = $1
+    AND
+    user_id = $2;
