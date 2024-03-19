@@ -13,18 +13,22 @@ import (
 
 const getTweetDetailReply = `-- name: GetTweetDetailReply :many
 SELECT
-    users.id,
-    users.display_name,
+    users.id AS user_id,
+    users.display_name AS user_name,
     users.profile_image AS profile_image,
     replies.id AS reply_id,
     replies.tweet_id AS tweet_id,
-    replies.content AS reply_content,
+    replies.content AS tweet_content,
     replies.image_path AS image_path,
-    replies.created_at AS reply_date
+    replies.created_at AS tweet_date,
+    (SELECT COUNT(*) FROM likes WHERE likes.tweet_id = tweets.id) AS likes_count,
+    (SELECT COUNT(*) FROM retweets WHERE retweets.tweet_id = tweets.id) AS retweets_count
 FROM
     replies
 JOIN
     users ON replies.user_id = users.id
+JOIN
+    tweets ON replies.tweet_id = tweets.id
 WHERE
     replies.tweet_id = $1
 ORDER BY
@@ -32,14 +36,16 @@ ORDER BY
 `
 
 type GetTweetDetailReplyRow struct {
-	ID           int64          `json:"id"`
-	DisplayName  string         `json:"display_name"`
-	ProfileImage sql.NullString `json:"profile_image"`
-	ReplyID      int64          `json:"reply_id"`
-	TweetID      int64          `json:"tweet_id"`
-	ReplyContent string         `json:"reply_content"`
-	ImagePath    sql.NullString `json:"image_path"`
-	ReplyDate    time.Time      `json:"reply_date"`
+	UserID        int64          `json:"user_id"`
+	UserName      string         `json:"user_name"`
+	ProfileImage  sql.NullString `json:"profile_image"`
+	ReplyID       int64          `json:"reply_id"`
+	TweetID       int64          `json:"tweet_id"`
+	TweetContent  string         `json:"tweet_content"`
+	ImagePath     sql.NullString `json:"image_path"`
+	TweetDate     time.Time      `json:"tweet_date"`
+	LikesCount    int64          `json:"likes_count"`
+	RetweetsCount int64          `json:"retweets_count"`
 }
 
 func (q *Queries) GetTweetDetailReply(ctx context.Context, tweetID int64) ([]GetTweetDetailReplyRow, error) {
@@ -52,14 +58,16 @@ func (q *Queries) GetTweetDetailReply(ctx context.Context, tweetID int64) ([]Get
 	for rows.Next() {
 		var i GetTweetDetailReplyRow
 		if err := rows.Scan(
-			&i.ID,
-			&i.DisplayName,
+			&i.UserID,
+			&i.UserName,
 			&i.ProfileImage,
 			&i.ReplyID,
 			&i.TweetID,
-			&i.ReplyContent,
+			&i.TweetContent,
 			&i.ImagePath,
-			&i.ReplyDate,
+			&i.TweetDate,
+			&i.LikesCount,
+			&i.RetweetsCount,
 		); err != nil {
 			return nil, err
 		}

@@ -5,13 +5,14 @@ import (
 	"net/http"
 	"strconv"
 
+	"example.com/golang_twitter/api/interfaces"
 	"example.com/golang_twitter/config"
 	sqlc "example.com/golang_twitter/db/sqlc"
 	"example.com/golang_twitter/utils"
 	"github.com/gin-gonic/gin"
 )
 
-func GetTweetDetail(cfg config.Config, queries *sqlc.Queries) gin.HandlerFunc {
+func GetTweetDetail(cfg config.Config, redisConn *interfaces.RedisConn, queries *sqlc.Queries) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tweetIDStr := c.Param("id") // URLからツイートIDを文字列として取得
 
@@ -23,24 +24,17 @@ func GetTweetDetail(cfg config.Config, queries *sqlc.Queries) gin.HandlerFunc {
 			return
 		}
 
-		// セッションからユーザー情報を取得
-		sessionID, err := c.Cookie("session_id")
+		// ユーザ情報の取得
+		userInfo, err := utils.CurrentUser(c, redisConn, queries)
 		if err != nil {
-			log.Printf("Failed to retrieve session ID: %v", err)
-			c.JSON(500, gin.H{"error": "セッションIDの取得に失敗しました"})
-			return
-		}
-		currentUserId, err := utils.GetSessionUserId(c, sessionID)
-		if err != nil {
-			log.Printf("Failed to retrieve userId from session: %v", err)
-			c.JSON(500, gin.H{"error": "セッションからユーザー情報の取得に失敗しました"})
+			c.JSON(500, gin.H{"error": "プロフィール情報の取得に失敗しました"})
 			return
 		}
 
 		// データベースからツイートの詳細情報を取得するロジック
 		tweetDetail, err := queries.GetTweetDetail(c, sqlc.GetTweetDetailParams{
 			ID:     tweetID,
-			UserID: currentUserId,
+			UserID: userInfo.ID,
 		})
 		if err != nil {
 			// データベースからの取得に失敗した場合のエラー処理
@@ -48,19 +42,19 @@ func GetTweetDetail(cfg config.Config, queries *sqlc.Queries) gin.HandlerFunc {
 			return
 		}
 
-		// ツイート詳細情報をクライアントに返す
+		// ツイートのコメント情報を取得
+		replies, err := queries.GetTweetDetailReply(c, tweetID)
+		if err != nil {
+			log.Printf("failed to get replies: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "リプライの取得に失敗しました"})
+			return
+		}
+
+		// ツイート詳細情報とコメント情報をクライアントに返す
 		c.JSON(200, gin.H{
-			"tweet_id":       tweetDetail.TweetID,
-			"user_id":        tweetDetail.ID,
-			"user_name":      tweetDetail.UserName,
-			"profile_image":  tweetDetail.ProfileImage,
-			"tweet_date":     tweetDetail.TweetDate,
-			"tweet_content":  tweetDetail.TweetContent,
-			"image_path":     tweetDetail.ImagePath,
-			"replies_count":  tweetDetail.RepliesCount,
-			"likes_count":    tweetDetail.LikesCount,
-			"retweets_count": tweetDetail.RetweetsCount,
-			"is_bookmarked":  tweetDetail.IsBookmarked,
+			"tweetDetail":   tweetDetail,
+			"replies":       replies,
+			"currentUserId": userInfo.ID,
 		})
 	}
 }

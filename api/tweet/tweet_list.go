@@ -4,6 +4,7 @@ import (
 	"log"
 	"strconv"
 
+	"example.com/golang_twitter/api/interfaces"
 	"example.com/golang_twitter/config"
 	sqlc "example.com/golang_twitter/db/sqlc"
 	"example.com/golang_twitter/utils"
@@ -46,23 +47,16 @@ func GetTweetList(c *gin.Context, cfg config.Config, queries *sqlc.Queries, user
 	return tweets, nil
 }
 
-func GetTweetsAsJSON(cfg config.Config, queries *sqlc.Queries) gin.HandlerFunc {
+func GetTweetsAsJSON(cfg config.Config, redisConn *interfaces.RedisConn, queries *sqlc.Queries) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// セッションからユーザー情報を取得
-		sessionID, err := c.Cookie("session_id")
+		userInfo, err := utils.CurrentUser(c, redisConn, queries)
 		if err != nil {
-			log.Printf("Failed to retrieve session ID: %v", err)
-			c.JSON(500, gin.H{"error": "セッションIDの取得に失敗しました"})
-			return
-		}
-		currentUserId, err := utils.GetSessionUserId(c, sessionID)
-		if err != nil {
-			log.Printf("Failed to retrieve userId from session: %v", err)
-			c.JSON(500, gin.H{"error": "セッションからユーザー情報の取得に失敗しました"})
+			log.Printf("Failed to get userInfo: %v", err)
+			c.JSON(500, gin.H{"error": "プロフィール情報の取得に失敗しました"})
 			return
 		}
 
-		tweets, err := GetTweetList(c, cfg, queries, currentUserId)
+		tweets, err := GetTweetList(c, cfg, queries, userInfo.ID)
 		if err != nil {
 			log.Printf("Failed to retrieve tweets: %v", err)
 			c.JSON(500, gin.H{"error": "ツイートの取得に失敗しました"})
@@ -70,8 +64,8 @@ func GetTweetsAsJSON(cfg config.Config, queries *sqlc.Queries) gin.HandlerFunc {
 		}
 
 		c.JSON(200, gin.H{
-			"tweets":        tweets,
-			"currentUserId": currentUserId,
+			"tweets":   tweets,
+			"userInfo": userInfo,
 		})
 	}
 }

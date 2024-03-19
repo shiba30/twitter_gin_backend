@@ -48,6 +48,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.deleteLikeStmt, err = db.PrepareContext(ctx, deleteLike); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteLike: %w", err)
 	}
+	if q.deleteReplyStmt, err = db.PrepareContext(ctx, deleteReply); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteReply: %w", err)
+	}
 	if q.deleteRetweetStmt, err = db.PrepareContext(ctx, deleteRetweet); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteRetweet: %w", err)
 	}
@@ -154,6 +157,11 @@ func (q *Queries) Close() error {
 	if q.deleteLikeStmt != nil {
 		if cerr := q.deleteLikeStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing deleteLikeStmt: %w", cerr)
+		}
+	}
+	if q.deleteReplyStmt != nil {
+		if cerr := q.deleteReplyStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteReplyStmt: %w", cerr)
 		}
 	}
 	if q.deleteRetweetStmt != nil {
@@ -308,6 +316,7 @@ type Queries struct {
 	deleteBookmarkStmt           *sql.Stmt
 	deleteFollowStmt             *sql.Stmt
 	deleteLikeStmt               *sql.Stmt
+	deleteReplyStmt              *sql.Stmt
 	deleteRetweetStmt            *sql.Stmt
 	deleteTweetStmt              *sql.Stmt
 	getBookmarkStmt              *sql.Stmt
@@ -343,6 +352,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		deleteBookmarkStmt:           q.deleteBookmarkStmt,
 		deleteFollowStmt:             q.deleteFollowStmt,
 		deleteLikeStmt:               q.deleteLikeStmt,
+		deleteReplyStmt:              q.deleteReplyStmt,
 		deleteRetweetStmt:            q.deleteRetweetStmt,
 		deleteTweetStmt:              q.deleteTweetStmt,
 		getBookmarkStmt:              q.getBookmarkStmt,

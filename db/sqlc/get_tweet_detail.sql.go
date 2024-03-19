@@ -13,7 +13,7 @@ import (
 
 const getTweetDetail = `-- name: GetTweetDetail :one
 SELECT
-    users.id,
+    users.id AS user_id,
     users.display_name AS user_name,
     users.profile_image AS profile_image,
     tweets.id AS tweet_id,
@@ -49,7 +49,7 @@ type GetTweetDetailParams struct {
 }
 
 type GetTweetDetailRow struct {
-	ID            int64          `json:"id"`
+	UserID        int64          `json:"user_id"`
 	UserName      string         `json:"user_name"`
 	ProfileImage  sql.NullString `json:"profile_image"`
 	TweetID       int64          `json:"tweet_id"`
@@ -67,7 +67,7 @@ func (q *Queries) GetTweetDetail(ctx context.Context, arg GetTweetDetailParams) 
 	row := q.queryRow(ctx, q.getTweetDetailStmt, getTweetDetail, arg.ID, arg.UserID)
 	var i GetTweetDetailRow
 	err := row.Scan(
-		&i.ID,
+		&i.UserID,
 		&i.UserName,
 		&i.ProfileImage,
 		&i.TweetID,
