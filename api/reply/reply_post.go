@@ -2,7 +2,9 @@ package reply
 
 import (
 	"log"
+	"strconv"
 
+	"example.com/golang_twitter/api/interfaces"
 	"example.com/golang_twitter/config"
 	sqlc "example.com/golang_twitter/db/sqlc"
 	"example.com/golang_twitter/utils"
@@ -10,13 +12,11 @@ import (
 )
 
 type ReplyForm struct {
-	TweetId int64  `json:"tweetId"`
-	UserId  int64  `json:"userId"`
 	Content string `json:"content"`
 	Image   string `json:"image,omitempty"`
 }
 
-func PostReply(cfg config.Config, queries *sqlc.Queries) gin.HandlerFunc {
+func PostReply(cfg config.Config, redisConn *interfaces.RedisConn, queries *sqlc.Queries) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		form := ReplyForm{}
 
@@ -34,22 +34,21 @@ func PostReply(cfg config.Config, queries *sqlc.Queries) gin.HandlerFunc {
 			return
 		}
 
-		// セッションからユーザー情報を取得
-		sessionID, err := c.Cookie("session_id")
+		tweetID, err := strconv.ParseInt(c.Param("id"), 10, 64)
 		if err != nil {
-			log.Printf("Failed to retrieve session ID: %v", err)
-			c.JSON(500, gin.H{"error": "セッションIDの取得に失敗しました"})
+			c.JSON(400, gin.H{"error": "ツイートIDが不正です"})
 			return
 		}
-		userId, err := utils.GetSessionUserId(c, sessionID)
+
+		// ユーザ情報の取得
+		userInfo, err := utils.CurrentUser(c, redisConn, queries)
 		if err != nil {
-			log.Printf("Failed to retrieve userId from session: %v", err)
-			c.JSON(500, gin.H{"error": "セッションからユーザー情報の取得に失敗しました"})
+			c.JSON(500, gin.H{"error": "プロフィール情報の取得に失敗しました"})
 			return
 		}
 
 		// 画像処理部分を共通関数に置き換え
-		imagePath, err := utils.ProcessImage(form.Image, cfg.UploadedImagesDir, form.UserId)
+		imagePath, err := utils.ProcessImage(form.Image, cfg.UploadedImagesDir, userInfo.ID)
 		if err != nil {
 			c.JSON(500, gin.H{"error": "画像の処理に失敗しました"})
 			return
@@ -57,8 +56,8 @@ func PostReply(cfg config.Config, queries *sqlc.Queries) gin.HandlerFunc {
 
 		// コメントデータの保存処理
 		_, err = queries.InsertReply(c, sqlc.InsertReplyParams{
-			TweetID:   form.TweetId,
-			UserID:    userId,
+			TweetID:   tweetID,
+			UserID:    userInfo.ID,
 			Content:   form.Content,
 			ImagePath: imagePath,
 		})
