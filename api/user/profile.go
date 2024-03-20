@@ -3,6 +3,7 @@ package user
 import (
 	"database/sql"
 	"log"
+	"strconv"
 	"time"
 
 	"example.com/golang_twitter/api/interfaces"
@@ -23,21 +24,41 @@ type profileForm struct {
 }
 
 func ProfileRoutes(router *gin.RouterGroup, cfg config.Config, redisConn *interfaces.RedisConn, queries *sqlc.Queries) {
-	router.GET("/profile", GetProfile(redisConn, queries))
+	router.GET("/profile/:id", GetProfile(redisConn, queries))
 	router.POST("/profile", SaveProfile(cfg, redisConn, queries))
 }
 
 func GetProfile(redisConn *interfaces.RedisConn, queries *sqlc.Queries) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// ユーザ情報の取得
+		// ログインユーザ情報の取得
 		userInfo, err := utils.CurrentUser(c, redisConn, queries)
+		if err != nil {
+			c.JSON(500, gin.H{"error": "ログインユーザ情報の取得に失敗しました"})
+			return
+		}
+
+		// ユーザIDの取得
+		var userId int64
+		userIdStr := c.Param("id")
+		if userIdStr != "null" {
+			userId, err = strconv.ParseInt(userIdStr, 10, 64)
+			if err != nil {
+				c.JSON(500, gin.H{"error": "ユーザIDの取得に失敗しました"})
+				return
+			}
+		} else {
+			userId = userInfo.ID
+		}
+
+		// プロフィール情報の取得
+		profile, err := queries.GetUserInfo(c, userId)
 		if err != nil {
 			c.JSON(500, gin.H{"error": "プロフィール情報の取得に失敗しました"})
 			return
 		}
 
 		// ツイート情報の取得
-		tweets, err := queries.GetTweetsByUser(c, userInfo.ID)
+		tweets, err := queries.GetTweetsByUser(c, userId)
 		if err != nil {
 			log.Printf("Failed to retrieve tweets: %v", err)
 			c.JSON(500, gin.H{"error": "ツイートの取得に失敗しました"})
@@ -45,7 +66,7 @@ func GetProfile(redisConn *interfaces.RedisConn, queries *sqlc.Queries) gin.Hand
 		}
 
 		c.JSON(200, gin.H{
-			"profile":       userInfo,
+			"profile":       profile,
 			"tweets":        tweets,
 			"currentUserId": userInfo.ID,
 		})
