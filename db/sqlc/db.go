@@ -63,6 +63,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getBookmarksStmt, err = db.PrepareContext(ctx, getBookmarks); err != nil {
 		return nil, fmt.Errorf("error preparing query GetBookmarks: %w", err)
 	}
+	if q.getFollowByUserIdStmt, err = db.PrepareContext(ctx, getFollowByUserId); err != nil {
+		return nil, fmt.Errorf("error preparing query GetFollowByUserId: %w", err)
+	}
 	if q.getFollowsStmt, err = db.PrepareContext(ctx, getFollows); err != nil {
 		return nil, fmt.Errorf("error preparing query GetFollows: %w", err)
 	}
@@ -182,6 +185,11 @@ func (q *Queries) Close() error {
 	if q.getBookmarksStmt != nil {
 		if cerr := q.getBookmarksStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getBookmarksStmt: %w", cerr)
+		}
+	}
+	if q.getFollowByUserIdStmt != nil {
+		if cerr := q.getFollowByUserIdStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getFollowByUserIdStmt: %w", cerr)
 		}
 	}
 	if q.getFollowsStmt != nil {
@@ -321,6 +329,7 @@ type Queries struct {
 	deleteTweetStmt              *sql.Stmt
 	getBookmarkStmt              *sql.Stmt
 	getBookmarksStmt             *sql.Stmt
+	getFollowByUserIdStmt        *sql.Stmt
 	getFollowsStmt               *sql.Stmt
 	getLikeStmt                  *sql.Stmt
 	getMessagesStmt              *sql.Stmt
@@ -357,6 +366,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		deleteTweetStmt:              q.deleteTweetStmt,
 		getBookmarkStmt:              q.getBookmarkStmt,
 		getBookmarksStmt:             q.getBookmarksStmt,
+		getFollowByUserIdStmt:        q.getFollowByUserIdStmt,
 		getFollowsStmt:               q.getFollowsStmt,
 		getLikeStmt:                  q.getLikeStmt,
 		getMessagesStmt:              q.getMessagesStmt,

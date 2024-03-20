@@ -65,9 +65,21 @@ func GetProfile(redisConn *interfaces.RedisConn, queries *sqlc.Queries) gin.Hand
 			return
 		}
 
+		// フォロー情報の取得
+		followCount, err := queries.GetFollowByUserId(c, sqlc.GetFollowByUserIdParams{
+			FollowerID: userInfo.ID,
+			FolloweeID: userId,
+		})
+		if err != nil {
+			log.Printf("Failed to retrieve following: %v", err)
+			c.JSON(500, gin.H{"error": "フォロー情報の取得に失敗しました"})
+			return
+		}
+
 		c.JSON(200, gin.H{
 			"profile":       profile,
 			"tweets":        tweets,
+			"followCount":   followCount,
 			"currentUserId": userInfo.ID,
 		})
 	}
