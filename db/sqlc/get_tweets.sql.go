@@ -21,10 +21,10 @@ SELECT
     tweets.image_path AS image_path,
     tweets.created_at AS tweet_date,
     tweets.is_retweet AS is_retweet,
-    COALESCE(retweeters.display_name, '') AS retweeter_name, -- リツイートしたユーザーの名前
+    COALESCE(retweets_user.display_name, '') AS retweeter_name, -- リツイートしたユーザーの名前
     COUNT(DISTINCT replies.id) AS replies_count,
     COUNT(DISTINCT likes.id) AS likes_count,
-    COUNT(DISTINCT retweets.id) AS retweets_count,
+    (SELECT COUNT(*) FROM retweets WHERE original_tweet_id = tweets.id) AS retweets_count, -- オリジナルのツイートに対するリツイート数
     CASE WHEN bookmarks.tweet_id IS NOT NULL THEN true ELSE false END AS is_bookmarked,
     CASE WHEN follows.follower_id IS NOT NULL THEN true ELSE false END AS is_following
 FROM
@@ -36,7 +36,7 @@ LEFT JOIN
 LEFT JOIN
     retweets ON tweets.id = retweets.tweet_id
 LEFT JOIN
-    users AS retweeters ON retweets.user_id = retweeters.id AND tweets.id = retweets.tweet_id -- リツイートしたユーザー
+    users AS retweets_user ON retweets.user_id = retweets_user.id
 LEFT JOIN
     likes ON tweets.id = likes.tweet_id
 LEFT JOIN
@@ -44,7 +44,7 @@ LEFT JOIN
 LEFT JOIN
     follows ON users.id = follows.followee_id AND follows.follower_id = $3
 GROUP BY
-    tweets.id, users.id, retweeters.id, bookmarks.tweet_id, follows.follower_id
+    tweets.id, users.id, retweets_user.id, bookmarks.tweet_id, follows.follower_id
 ORDER BY
     tweets.created_at DESC
 LIMIT

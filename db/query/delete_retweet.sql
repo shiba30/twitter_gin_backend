@@ -2,7 +2,7 @@
 DELETE FROM
     retweets
 WHERE
-    tweet_id = $1
+    original_tweet_id = $1
     AND user_id = $2;
 
 -- name: DeleteTweet :exec

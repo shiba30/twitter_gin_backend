@@ -41,9 +41,9 @@ func RetweetAction(cfg config.Config, queries *sqlc.Queries) gin.HandlerFunc {
 		}
 
 		// リツイートの存在確認
-		_, err = queries.GetRetweet(c, sqlc.GetRetweetParams{
-			TweetID: tweetID,
-			UserID:  userID,
+		retweet, err := queries.GetRetweet(c, sqlc.GetRetweetParams{
+			OriginalTweetID: tweetID,
+			UserID:          userID,
 		})
 
 		if err == sql.ErrNoRows {
@@ -68,8 +68,9 @@ func RetweetAction(cfg config.Config, queries *sqlc.Queries) gin.HandlerFunc {
 
 			retweetID := insertedTweet.ID
 			err = queries.CreateRetweet(c, sqlc.CreateRetweetParams{
-				TweetID: retweetID,
-				UserID:  userID,
+				TweetID:         retweetID,
+				UserID:          userID,
+				OriginalTweetID: tweetID,
 			})
 			if err != nil {
 				c.JSON(500, gin.H{"error": "リツイートの保存に失敗しました"})
@@ -87,8 +88,8 @@ func RetweetAction(cfg config.Config, queries *sqlc.Queries) gin.HandlerFunc {
 
 			// リツイートが存在する場合、削除
 			err = queries.DeleteRetweet(c, sqlc.DeleteRetweetParams{
-				TweetID: tweetID,
-				UserID:  userID,
+				OriginalTweetID: tweetID,
+				UserID:          userID,
 			})
 			if err != nil {
 				tx.Rollback()
@@ -98,7 +99,7 @@ func RetweetAction(cfg config.Config, queries *sqlc.Queries) gin.HandlerFunc {
 
 			// 関連するツイートを削除
 			err = queries.DeleteTweet(c, sqlc.DeleteTweetParams{
-				ID:     tweetID,
+				ID:     retweet.TweetID,
 				UserID: userID,
 			})
 			if err != nil {

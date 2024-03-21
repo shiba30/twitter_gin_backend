@@ -49,10 +49,11 @@ type Reply struct {
 }
 
 type Retweet struct {
-	ID        int64     `json:"id"`
-	TweetID   int64     `json:"tweet_id"`
-	UserID    int64     `json:"user_id"`
-	CreatedAt time.Time `json:"created_at"`
+	ID              int64     `json:"id"`
+	TweetID         int64     `json:"tweet_id"`
+	UserID          int64     `json:"user_id"`
+	OriginalTweetID int64     `json:"original_tweet_id"`
+	CreatedAt       time.Time `json:"created_at"`
 }
 
 type Tweet struct {

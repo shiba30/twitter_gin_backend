@@ -14,27 +14,29 @@ SELECT
     id,
     tweet_id,
     user_id,
+    original_tweet_id,
     created_at
 FROM
     retweets
 WHERE
-    tweet_id = $1
+    original_tweet_id = $1
     AND
     user_id = $2
 `
 
 type GetRetweetParams struct {
-	TweetID int64 `json:"tweet_id"`
-	UserID  int64 `json:"user_id"`
+	OriginalTweetID int64 `json:"original_tweet_id"`
+	UserID          int64 `json:"user_id"`
 }
 
 func (q *Queries) GetRetweet(ctx context.Context, arg GetRetweetParams) (Retweet, error) {
-	row := q.queryRow(ctx, q.getRetweetStmt, getRetweet, arg.TweetID, arg.UserID)
+	row := q.queryRow(ctx, q.getRetweetStmt, getRetweet, arg.OriginalTweetID, arg.UserID)
 	var i Retweet
 	err := row.Scan(
 		&i.ID,
 		&i.TweetID,
 		&i.UserID,
+		&i.OriginalTweetID,
 		&i.CreatedAt,
 	)
 	return i, err

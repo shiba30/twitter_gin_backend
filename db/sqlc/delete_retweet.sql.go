@@ -13,17 +13,17 @@ const deleteRetweet = `-- name: DeleteRetweet :exec
 DELETE FROM
     retweets
 WHERE
-    tweet_id = $1
+    original_tweet_id = $1
     AND user_id = $2
 `
 
 type DeleteRetweetParams struct {
-	TweetID int64 `json:"tweet_id"`
-	UserID  int64 `json:"user_id"`
+	OriginalTweetID int64 `json:"original_tweet_id"`
+	UserID          int64 `json:"user_id"`
 }
 
 func (q *Queries) DeleteRetweet(ctx context.Context, arg DeleteRetweetParams) error {
-	_, err := q.exec(ctx, q.deleteRetweetStmt, deleteRetweet, arg.TweetID, arg.UserID)
+	_, err := q.exec(ctx, q.deleteRetweetStmt, deleteRetweet, arg.OriginalTweetID, arg.UserID)
 	return err
 }
 

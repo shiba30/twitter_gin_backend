@@ -12,18 +12,20 @@ import (
 const createRetweet = `-- name: CreateRetweet :exec
 INSERT INTO retweets (
     tweet_id,
-    user_id
+    user_id,
+    original_tweet_id
 ) VALUES (
-    $1, $2
+    $1, $2, $3
 )
 `
 
 type CreateRetweetParams struct {
-	TweetID int64 `json:"tweet_id"`
-	UserID  int64 `json:"user_id"`
+	TweetID         int64 `json:"tweet_id"`
+	UserID          int64 `json:"user_id"`
+	OriginalTweetID int64 `json:"original_tweet_id"`
 }
 
 func (q *Queries) CreateRetweet(ctx context.Context, arg CreateRetweetParams) error {
-	_, err := q.exec(ctx, q.createRetweetStmt, createRetweet, arg.TweetID, arg.UserID)
+	_, err := q.exec(ctx, q.createRetweetStmt, createRetweet, arg.TweetID, arg.UserID, arg.OriginalTweetID)
 	return err
 }
