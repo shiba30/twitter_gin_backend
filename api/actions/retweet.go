@@ -88,8 +88,8 @@ func RetweetAction(cfg config.Config, queries *sqlc.Queries) gin.HandlerFunc {
 
 			// リツイートが存在する場合、削除
 			err = queries.DeleteRetweet(c, sqlc.DeleteRetweetParams{
-				OriginalTweetID: tweetID,
-				UserID:          userID,
+				OriginalTweetID: retweet.OriginalTweetID,
+				UserID:          retweet.UserID,
 			})
 			if err != nil {
 				tx.Rollback()
@@ -98,10 +98,7 @@ func RetweetAction(cfg config.Config, queries *sqlc.Queries) gin.HandlerFunc {
 			}
 
 			// 関連するツイートを削除
-			err = queries.DeleteTweet(c, sqlc.DeleteTweetParams{
-				ID:     retweet.TweetID,
-				UserID: userID,
-			})
+			err = queries.DeleteRetweetOfTweet(c, retweet.TweetID)
 			if err != nil {
 				tx.Rollback()
 				c.JSON(500, gin.H{"error": "ツイートの削除に失敗しました"})
