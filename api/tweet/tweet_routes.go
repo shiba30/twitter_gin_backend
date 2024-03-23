@@ -27,7 +27,7 @@ func TweetRoutes(router *gin.RouterGroup, cfg config.Config, redisConn *interfac
 		tweet.POST("/:id/retweet", middleware.AuthRequired(), actions.RetweetAction(cfg, queries))       // リツイート機能
 		tweet.POST("/:id/bookmark", middleware.AuthRequired(), actions.PostBookmarkAction(cfg, queries)) // ブックマーク追加削除機能
 
-		tweet.POST("/:id/follow", middleware.AuthRequired(), follow.Follow(cfg, queries))     // フォロー機能
-		tweet.POST("/:id/unfollow", middleware.AuthRequired(), follow.UnFollow(cfg, queries)) // フォロー解除機能
+		tweet.POST("/follow", middleware.AuthRequired(), follow.Follow(redisConn, queries))     // フォロー機能
+		tweet.POST("/unfollow", middleware.AuthRequired(), follow.UnFollow(redisConn, queries)) // フォロー解除機能
 	}
 }

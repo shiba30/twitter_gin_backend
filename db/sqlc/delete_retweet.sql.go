@@ -13,35 +13,28 @@ const deleteRetweet = `-- name: DeleteRetweet :exec
 DELETE FROM
     retweets
 WHERE
-    tweet_id = $1
+    original_tweet_id = $1
     AND user_id = $2
 `
 
 type DeleteRetweetParams struct {
-	TweetID int64 `json:"tweet_id"`
-	UserID  int64 `json:"user_id"`
+	OriginalTweetID int64 `json:"original_tweet_id"`
+	UserID          int64 `json:"user_id"`
 }
 
 func (q *Queries) DeleteRetweet(ctx context.Context, arg DeleteRetweetParams) error {
-	_, err := q.exec(ctx, q.deleteRetweetStmt, deleteRetweet, arg.TweetID, arg.UserID)
+	_, err := q.exec(ctx, q.deleteRetweetStmt, deleteRetweet, arg.OriginalTweetID, arg.UserID)
 	return err
 }
 
-const deleteTweet = `-- name: DeleteTweet :exec
+const deleteRetweetOfTweet = `-- name: DeleteRetweetOfTweet :exec
 DELETE FROM
     tweets
 WHERE
     id = $1
-    AND
-    user_id = $2
 `
 
-type DeleteTweetParams struct {
-	ID     int64 `json:"id"`
-	UserID int64 `json:"user_id"`
-}
-
-func (q *Queries) DeleteTweet(ctx context.Context, arg DeleteTweetParams) error {
-	_, err := q.exec(ctx, q.deleteTweetStmt, deleteTweet, arg.ID, arg.UserID)
+func (q *Queries) DeleteRetweetOfTweet(ctx context.Context, id int64) error {
+	_, err := q.exec(ctx, q.deleteRetweetOfTweetStmt, deleteRetweetOfTweet, id)
 	return err
 }

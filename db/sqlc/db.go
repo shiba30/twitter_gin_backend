@@ -54,6 +54,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.deleteRetweetStmt, err = db.PrepareContext(ctx, deleteRetweet); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteRetweet: %w", err)
 	}
+	if q.deleteRetweetOfTweetStmt, err = db.PrepareContext(ctx, deleteRetweetOfTweet); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteRetweetOfTweet: %w", err)
+	}
 	if q.deleteTweetStmt, err = db.PrepareContext(ctx, deleteTweet); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteTweet: %w", err)
 	}
@@ -62,6 +65,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	}
 	if q.getBookmarksStmt, err = db.PrepareContext(ctx, getBookmarks); err != nil {
 		return nil, fmt.Errorf("error preparing query GetBookmarks: %w", err)
+	}
+	if q.getFollowByUserIdStmt, err = db.PrepareContext(ctx, getFollowByUserId); err != nil {
+		return nil, fmt.Errorf("error preparing query GetFollowByUserId: %w", err)
 	}
 	if q.getFollowsStmt, err = db.PrepareContext(ctx, getFollows); err != nil {
 		return nil, fmt.Errorf("error preparing query GetFollows: %w", err)
@@ -169,6 +175,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing deleteRetweetStmt: %w", cerr)
 		}
 	}
+	if q.deleteRetweetOfTweetStmt != nil {
+		if cerr := q.deleteRetweetOfTweetStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteRetweetOfTweetStmt: %w", cerr)
+		}
+	}
 	if q.deleteTweetStmt != nil {
 		if cerr := q.deleteTweetStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing deleteTweetStmt: %w", cerr)
@@ -182,6 +193,11 @@ func (q *Queries) Close() error {
 	if q.getBookmarksStmt != nil {
 		if cerr := q.getBookmarksStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getBookmarksStmt: %w", cerr)
+		}
+	}
+	if q.getFollowByUserIdStmt != nil {
+		if cerr := q.getFollowByUserIdStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getFollowByUserIdStmt: %w", cerr)
 		}
 	}
 	if q.getFollowsStmt != nil {
@@ -318,9 +334,11 @@ type Queries struct {
 	deleteLikeStmt               *sql.Stmt
 	deleteReplyStmt              *sql.Stmt
 	deleteRetweetStmt            *sql.Stmt
+	deleteRetweetOfTweetStmt     *sql.Stmt
 	deleteTweetStmt              *sql.Stmt
 	getBookmarkStmt              *sql.Stmt
 	getBookmarksStmt             *sql.Stmt
+	getFollowByUserIdStmt        *sql.Stmt
 	getFollowsStmt               *sql.Stmt
 	getLikeStmt                  *sql.Stmt
 	getMessagesStmt              *sql.Stmt
@@ -354,9 +372,11 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		deleteLikeStmt:               q.deleteLikeStmt,
 		deleteReplyStmt:              q.deleteReplyStmt,
 		deleteRetweetStmt:            q.deleteRetweetStmt,
+		deleteRetweetOfTweetStmt:     q.deleteRetweetOfTweetStmt,
 		deleteTweetStmt:              q.deleteTweetStmt,
 		getBookmarkStmt:              q.getBookmarkStmt,
 		getBookmarksStmt:             q.getBookmarksStmt,
+		getFollowByUserIdStmt:        q.getFollowByUserIdStmt,
 		getFollowsStmt:               q.getFollowsStmt,
 		getLikeStmt:                  q.getLikeStmt,
 		getMessagesStmt:              q.getMessagesStmt,
