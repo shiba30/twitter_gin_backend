@@ -15,7 +15,7 @@ const getBookmarks = `-- name: GetBookmarks :many
 SELECT
     users.id AS user_id,
     users.display_name AS user_name,
-    users.profile_image AS user_image,
+    users.profile_image AS profile_image,
     tweets.id AS tweet_id,
     tweets.content AS tweet_content,
     tweets.image_path AS image_path,
@@ -24,7 +24,7 @@ SELECT
     COALESCE(retweeters.display_name, '') AS retweeter_name,
     COUNT(DISTINCT replies.id) AS replies_count,
     COUNT(DISTINCT likes.id) AS likes_count,
-    COUNT(DISTINCT retweets.id) AS retweets_count,
+    (SELECT COUNT(*) FROM retweets WHERE original_tweet_id = tweets.id) AS retweets_count,
     EXISTS(SELECT 1 FROM bookmarks WHERE tweet_id = tweets.id AND user_id = bookmarks.user_id) AS is_bookmarked,
     CASE WHEN follows.follower_id IS NOT NULL THEN true ELSE false END AS is_following
 FROM
@@ -54,7 +54,7 @@ ORDER BY
 type GetBookmarksRow struct {
 	UserID        int64          `json:"user_id"`
 	UserName      string         `json:"user_name"`
-	UserImage     sql.NullString `json:"user_image"`
+	ProfileImage  sql.NullString `json:"profile_image"`
 	TweetID       int64          `json:"tweet_id"`
 	TweetContent  string         `json:"tweet_content"`
 	ImagePath     sql.NullString `json:"image_path"`
@@ -80,7 +80,7 @@ func (q *Queries) GetBookmarks(ctx context.Context, userID int64) ([]GetBookmark
 		if err := rows.Scan(
 			&i.UserID,
 			&i.UserName,
-			&i.UserImage,
+			&i.ProfileImage,
 			&i.TweetID,
 			&i.TweetContent,
 			&i.ImagePath,
