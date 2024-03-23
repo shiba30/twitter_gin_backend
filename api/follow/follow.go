@@ -34,17 +34,32 @@ func followAction(c *gin.Context, isFollow bool, redisConn *interfaces.RedisConn
 			FollowerID: userInfo.ID,
 			FolloweeID: form.UserId,
 		})
+		if err != nil {
+			log.Printf("Error in follow action: %v", err)
+			c.JSON(500, gin.H{"error": "フォロー登録処理に失敗しました"})
+			return
+		}
+		// 通知テーブルにフォローを登録
+		_, err = queries.InsertNotification(c, sqlc.InsertNotificationParams{
+			UserID:      form.UserId,
+			ActionType:  "follow",
+			ReferenceID: form.UserId,
+		})
+		if err != nil {
+			c.JSON(500, gin.H{"error": "通知の登録に失敗しました"})
+			return
+		}
 	} else {
 		// フォロー解除
 		err = queries.DeleteFollow(c, sqlc.DeleteFollowParams{
 			FollowerID: userInfo.ID,
 			FolloweeID: form.UserId,
 		})
-	}
-	if err != nil {
-		log.Printf("Error in follow action: %v", err)
-		c.JSON(500, gin.H{"error": "処理に失敗しました"})
-		return
+		if err != nil {
+			log.Printf("Error in follow action: %v", err)
+			c.JSON(500, gin.H{"error": "フォロー解除処理に失敗しました"})
+			return
+		}
 	}
 
 	// フォロー情報の取得

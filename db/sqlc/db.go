@@ -78,6 +78,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.getMessagesStmt, err = db.PrepareContext(ctx, getMessages); err != nil {
 		return nil, fmt.Errorf("error preparing query GetMessages: %w", err)
 	}
+	if q.getNotificationsStmt, err = db.PrepareContext(ctx, getNotifications); err != nil {
+		return nil, fmt.Errorf("error preparing query GetNotifications: %w", err)
+	}
 	if q.getRetweetStmt, err = db.PrepareContext(ctx, getRetweet); err != nil {
 		return nil, fmt.Errorf("error preparing query GetRetweet: %w", err)
 	}
@@ -107,6 +110,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	}
 	if q.insertMessageStmt, err = db.PrepareContext(ctx, insertMessage); err != nil {
 		return nil, fmt.Errorf("error preparing query InsertMessage: %w", err)
+	}
+	if q.insertNotificationStmt, err = db.PrepareContext(ctx, insertNotification); err != nil {
+		return nil, fmt.Errorf("error preparing query InsertNotification: %w", err)
 	}
 	if q.insertReplyStmt, err = db.PrepareContext(ctx, insertReply); err != nil {
 		return nil, fmt.Errorf("error preparing query InsertReply: %w", err)
@@ -215,6 +221,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing getMessagesStmt: %w", cerr)
 		}
 	}
+	if q.getNotificationsStmt != nil {
+		if cerr := q.getNotificationsStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing getNotificationsStmt: %w", cerr)
+		}
+	}
 	if q.getRetweetStmt != nil {
 		if cerr := q.getRetweetStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing getRetweetStmt: %w", cerr)
@@ -263,6 +274,11 @@ func (q *Queries) Close() error {
 	if q.insertMessageStmt != nil {
 		if cerr := q.insertMessageStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing insertMessageStmt: %w", cerr)
+		}
+	}
+	if q.insertNotificationStmt != nil {
+		if cerr := q.insertNotificationStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing insertNotificationStmt: %w", cerr)
 		}
 	}
 	if q.insertReplyStmt != nil {
@@ -342,6 +358,7 @@ type Queries struct {
 	getFollowsStmt               *sql.Stmt
 	getLikeStmt                  *sql.Stmt
 	getMessagesStmt              *sql.Stmt
+	getNotificationsStmt         *sql.Stmt
 	getRetweetStmt               *sql.Stmt
 	getTweetByIDStmt             *sql.Stmt
 	getTweetDetailStmt           *sql.Stmt
@@ -352,6 +369,7 @@ type Queries struct {
 	getUserByEmailStmt           *sql.Stmt
 	getUserInfoStmt              *sql.Stmt
 	insertMessageStmt            *sql.Stmt
+	insertNotificationStmt       *sql.Stmt
 	insertReplyStmt              *sql.Stmt
 	insertTweetStmt              *sql.Stmt
 	updateUserStmt               *sql.Stmt
@@ -380,6 +398,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		getFollowsStmt:               q.getFollowsStmt,
 		getLikeStmt:                  q.getLikeStmt,
 		getMessagesStmt:              q.getMessagesStmt,
+		getNotificationsStmt:         q.getNotificationsStmt,
 		getRetweetStmt:               q.getRetweetStmt,
 		getTweetByIDStmt:             q.getTweetByIDStmt,
 		getTweetDetailStmt:           q.getTweetDetailStmt,
@@ -390,6 +409,7 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		getUserByEmailStmt:           q.getUserByEmailStmt,
 		getUserInfoStmt:              q.getUserInfoStmt,
 		insertMessageStmt:            q.insertMessageStmt,
+		insertNotificationStmt:       q.insertNotificationStmt,
 		insertReplyStmt:              q.insertReplyStmt,
 		insertTweetStmt:              q.insertTweetStmt,
 		updateUserStmt:               q.updateUserStmt,

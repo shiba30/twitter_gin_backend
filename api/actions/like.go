@@ -51,6 +51,23 @@ func LikeAction(cfg config.Config, queries *sqlc.Queries) gin.HandlerFunc {
 				c.JSON(500, gin.H{"error": "いいねの保存に失敗しました"})
 				return
 			}
+			// 通知テーブルにいいねを登録
+			tweet, err := queries.GetTweetByID(c, tweetID)
+			if err != nil {
+				c.JSON(500, gin.H{"error": "ツイート情報の取得に失敗しました"})
+				return
+			}
+			if tweet.UserID != userID {
+				_, err = queries.InsertNotification(c, sqlc.InsertNotificationParams{
+					UserID:      tweet.UserID,
+					ActionType:  "like",
+					ReferenceID: tweetID,
+				})
+				if err != nil {
+					c.JSON(500, gin.H{"error": "通知の登録に失敗しました"})
+					return
+				}
+			}
 			c.JSON(200, gin.H{"message": "いいね完了"})
 		} else if err == nil {
 			// いいねが存在する場合、削除
