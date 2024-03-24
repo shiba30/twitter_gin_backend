@@ -12,6 +12,7 @@ import (
 	"example.com/golang_twitter/api/notification"
 	"example.com/golang_twitter/api/tweet"
 	"example.com/golang_twitter/api/user"
+	"example.com/golang_twitter/api/withdrawal"
 	"example.com/golang_twitter/config"
 	sqlc "example.com/golang_twitter/db/sqlc"
 	"github.com/gin-gonic/gin"
@@ -42,6 +43,7 @@ func (c *Controller) Routes(router *gin.Engine) {
 		notification.NotificationRoutes(api, c.Config, c.RedisConn, c.Queries)
 		bookmark.BookmarkRoutes(api, c.Config, c.RedisConn, c.Queries)
 		message.MessageRoutes(api, c.Config, c.RedisConn, c.Queries)
+		withdrawal.WithdrawalRoutes(api, c.Config, c.RedisConn, c.Queries)
 	}
 
 	// ページレンダリングのルーティング
