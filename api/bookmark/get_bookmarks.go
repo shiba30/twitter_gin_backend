@@ -47,20 +47,9 @@ func GetBookmarks(cfg config.Config, redisConn *interfaces.RedisConn, queries *s
 			return
 		}
 
-		if c.GetHeader("Accept") == "application/json" {
-			// JSONレスポンスを返す
-			c.JSON(200, gin.H{
-				"userId": userInfo.ID,
-				"tweets": tweets,
-			})
-		} else {
-			// HTMLページを表示
-			c.HTML(200, "bookmarks.html", gin.H{
-				"userId":       userInfo.ID,
-				"displayName":  userInfo.DisplayName,
-				"profileImage": userInfo.ProfileImage,
-				"tweets":       tweets,
-			})
-		}
+		c.JSON(200, gin.H{
+			"userId": userInfo.ID,
+			"tweets": tweets,
+		})
 	}
 }

@@ -26,6 +26,9 @@ var broadcast = make(chan Message)
 var wsupgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
+	CheckOrigin: func(r *http.Request) bool {
+		return r.Header.Get("Origin") == "http://localhost:3000"
+	},
 }
 
 func GetMessagePage(cfg config.Config, redisConn *interfaces.RedisConn, queries *sqlc.Queries) gin.HandlerFunc {
@@ -33,7 +36,7 @@ func GetMessagePage(cfg config.Config, redisConn *interfaces.RedisConn, queries 
 		userInfo, err := utils.CurrentUser(c, redisConn, queries)
 		if err != nil {
 			log.Printf("Failed to retrieve current user: %v", err)
-			c.Redirect(303, "/login")
+			c.JSON(500, gin.H{"error": "メッセージの取得に失敗しました"})
 			return
 		}
 
@@ -41,11 +44,11 @@ func GetMessagePage(cfg config.Config, redisConn *interfaces.RedisConn, queries 
 		follows, err := queries.GetFollows(c, userInfo.ID)
 		if err != nil {
 			log.Printf("Failed to retrieve messages from DB: %v", err)
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "メッセージの取得に失敗しました"})
+			c.JSON(500, gin.H{"error": "メッセージの取得に失敗しました"})
 			return
 		}
 
-		c.HTML(200, "message.html", gin.H{
+		c.JSON(200, gin.H{
 			"userId":       userInfo.ID,
 			"displayName":  userInfo.DisplayName,
 			"profileImage": userInfo.ProfileImage,
@@ -106,6 +109,7 @@ func UpgradeToWebSocket(cfg config.Config, redisConn *interfaces.RedisConn, quer
 				}
 
 				var message Message
+				log.Printf("Received message: %s", msg)
 				if err := json.Unmarshal(msg, &message); err != nil {
 					log.Printf("Failed to unmarshal message: %v", err)
 					continue
