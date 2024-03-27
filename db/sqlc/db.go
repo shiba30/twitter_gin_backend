@@ -42,11 +42,32 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.deleteBookmarkStmt, err = db.PrepareContext(ctx, deleteBookmark); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteBookmark: %w", err)
 	}
+	if q.deleteBookmarksByTweetUserIDStmt, err = db.PrepareContext(ctx, deleteBookmarksByTweetUserID); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteBookmarksByTweetUserID: %w", err)
+	}
+	if q.deleteBookmarksByUserIDStmt, err = db.PrepareContext(ctx, deleteBookmarksByUserID); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteBookmarksByUserID: %w", err)
+	}
 	if q.deleteFollowStmt, err = db.PrepareContext(ctx, deleteFollow); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteFollow: %w", err)
 	}
+	if q.deleteFollowsByUserIDStmt, err = db.PrepareContext(ctx, deleteFollowsByUserID); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteFollowsByUserID: %w", err)
+	}
 	if q.deleteLikeStmt, err = db.PrepareContext(ctx, deleteLike); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteLike: %w", err)
+	}
+	if q.deleteLikesByUserIDStmt, err = db.PrepareContext(ctx, deleteLikesByUserID); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteLikesByUserID: %w", err)
+	}
+	if q.deleteMessagesByUserIDStmt, err = db.PrepareContext(ctx, deleteMessagesByUserID); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteMessagesByUserID: %w", err)
+	}
+	if q.deleteNotificationsByUserIDStmt, err = db.PrepareContext(ctx, deleteNotificationsByUserID); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteNotificationsByUserID: %w", err)
+	}
+	if q.deleteRepliesByUserIDStmt, err = db.PrepareContext(ctx, deleteRepliesByUserID); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteRepliesByUserID: %w", err)
 	}
 	if q.deleteReplyStmt, err = db.PrepareContext(ctx, deleteReply); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteReply: %w", err)
@@ -57,8 +78,17 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.deleteRetweetOfTweetStmt, err = db.PrepareContext(ctx, deleteRetweetOfTweet); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteRetweetOfTweet: %w", err)
 	}
+	if q.deleteRetweetsByUserIDStmt, err = db.PrepareContext(ctx, deleteRetweetsByUserID); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteRetweetsByUserID: %w", err)
+	}
 	if q.deleteTweetStmt, err = db.PrepareContext(ctx, deleteTweet); err != nil {
 		return nil, fmt.Errorf("error preparing query DeleteTweet: %w", err)
+	}
+	if q.deleteTweetsByUserIDStmt, err = db.PrepareContext(ctx, deleteTweetsByUserID); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteTweetsByUserID: %w", err)
+	}
+	if q.deleteUserStmt, err = db.PrepareContext(ctx, deleteUser); err != nil {
+		return nil, fmt.Errorf("error preparing query DeleteUser: %w", err)
 	}
 	if q.getBookmarkStmt, err = db.PrepareContext(ctx, getBookmark); err != nil {
 		return nil, fmt.Errorf("error preparing query GetBookmark: %w", err)
@@ -161,14 +191,49 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing deleteBookmarkStmt: %w", cerr)
 		}
 	}
+	if q.deleteBookmarksByTweetUserIDStmt != nil {
+		if cerr := q.deleteBookmarksByTweetUserIDStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteBookmarksByTweetUserIDStmt: %w", cerr)
+		}
+	}
+	if q.deleteBookmarksByUserIDStmt != nil {
+		if cerr := q.deleteBookmarksByUserIDStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteBookmarksByUserIDStmt: %w", cerr)
+		}
+	}
 	if q.deleteFollowStmt != nil {
 		if cerr := q.deleteFollowStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing deleteFollowStmt: %w", cerr)
 		}
 	}
+	if q.deleteFollowsByUserIDStmt != nil {
+		if cerr := q.deleteFollowsByUserIDStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteFollowsByUserIDStmt: %w", cerr)
+		}
+	}
 	if q.deleteLikeStmt != nil {
 		if cerr := q.deleteLikeStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing deleteLikeStmt: %w", cerr)
+		}
+	}
+	if q.deleteLikesByUserIDStmt != nil {
+		if cerr := q.deleteLikesByUserIDStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteLikesByUserIDStmt: %w", cerr)
+		}
+	}
+	if q.deleteMessagesByUserIDStmt != nil {
+		if cerr := q.deleteMessagesByUserIDStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteMessagesByUserIDStmt: %w", cerr)
+		}
+	}
+	if q.deleteNotificationsByUserIDStmt != nil {
+		if cerr := q.deleteNotificationsByUserIDStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteNotificationsByUserIDStmt: %w", cerr)
+		}
+	}
+	if q.deleteRepliesByUserIDStmt != nil {
+		if cerr := q.deleteRepliesByUserIDStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteRepliesByUserIDStmt: %w", cerr)
 		}
 	}
 	if q.deleteReplyStmt != nil {
@@ -186,9 +251,24 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing deleteRetweetOfTweetStmt: %w", cerr)
 		}
 	}
+	if q.deleteRetweetsByUserIDStmt != nil {
+		if cerr := q.deleteRetweetsByUserIDStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteRetweetsByUserIDStmt: %w", cerr)
+		}
+	}
 	if q.deleteTweetStmt != nil {
 		if cerr := q.deleteTweetStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing deleteTweetStmt: %w", cerr)
+		}
+	}
+	if q.deleteTweetsByUserIDStmt != nil {
+		if cerr := q.deleteTweetsByUserIDStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteTweetsByUserIDStmt: %w", cerr)
+		}
+	}
+	if q.deleteUserStmt != nil {
+		if cerr := q.deleteUserStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing deleteUserStmt: %w", cerr)
 		}
 	}
 	if q.getBookmarkStmt != nil {
@@ -338,81 +418,101 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 }
 
 type Queries struct {
-	db                           DBTX
-	tx                           *sql.Tx
-	createBookmarkStmt           *sql.Stmt
-	createFollowStmt             *sql.Stmt
-	createLikeStmt               *sql.Stmt
-	createRetweetStmt            *sql.Stmt
-	createUserStmt               *sql.Stmt
-	deleteBookmarkStmt           *sql.Stmt
-	deleteFollowStmt             *sql.Stmt
-	deleteLikeStmt               *sql.Stmt
-	deleteReplyStmt              *sql.Stmt
-	deleteRetweetStmt            *sql.Stmt
-	deleteRetweetOfTweetStmt     *sql.Stmt
-	deleteTweetStmt              *sql.Stmt
-	getBookmarkStmt              *sql.Stmt
-	getBookmarksStmt             *sql.Stmt
-	getFollowByUserIdStmt        *sql.Stmt
-	getFollowsStmt               *sql.Stmt
-	getLikeStmt                  *sql.Stmt
-	getMessagesStmt              *sql.Stmt
-	getNotificationsStmt         *sql.Stmt
-	getRetweetStmt               *sql.Stmt
-	getTweetByIDStmt             *sql.Stmt
-	getTweetDetailStmt           *sql.Stmt
-	getTweetDetailReplyStmt      *sql.Stmt
-	getTweetsStmt                *sql.Stmt
-	getTweetsByUserStmt          *sql.Stmt
-	getUserByActivationTokenStmt *sql.Stmt
-	getUserByEmailStmt           *sql.Stmt
-	getUserInfoStmt              *sql.Stmt
-	insertMessageStmt            *sql.Stmt
-	insertNotificationStmt       *sql.Stmt
-	insertReplyStmt              *sql.Stmt
-	insertTweetStmt              *sql.Stmt
-	updateUserStmt               *sql.Stmt
-	updateUserProfileStmt        *sql.Stmt
+	db                               DBTX
+	tx                               *sql.Tx
+	createBookmarkStmt               *sql.Stmt
+	createFollowStmt                 *sql.Stmt
+	createLikeStmt                   *sql.Stmt
+	createRetweetStmt                *sql.Stmt
+	createUserStmt                   *sql.Stmt
+	deleteBookmarkStmt               *sql.Stmt
+	deleteBookmarksByTweetUserIDStmt *sql.Stmt
+	deleteBookmarksByUserIDStmt      *sql.Stmt
+	deleteFollowStmt                 *sql.Stmt
+	deleteFollowsByUserIDStmt        *sql.Stmt
+	deleteLikeStmt                   *sql.Stmt
+	deleteLikesByUserIDStmt          *sql.Stmt
+	deleteMessagesByUserIDStmt       *sql.Stmt
+	deleteNotificationsByUserIDStmt  *sql.Stmt
+	deleteRepliesByUserIDStmt        *sql.Stmt
+	deleteReplyStmt                  *sql.Stmt
+	deleteRetweetStmt                *sql.Stmt
+	deleteRetweetOfTweetStmt         *sql.Stmt
+	deleteRetweetsByUserIDStmt       *sql.Stmt
+	deleteTweetStmt                  *sql.Stmt
+	deleteTweetsByUserIDStmt         *sql.Stmt
+	deleteUserStmt                   *sql.Stmt
+	getBookmarkStmt                  *sql.Stmt
+	getBookmarksStmt                 *sql.Stmt
+	getFollowByUserIdStmt            *sql.Stmt
+	getFollowsStmt                   *sql.Stmt
+	getLikeStmt                      *sql.Stmt
+	getMessagesStmt                  *sql.Stmt
+	getNotificationsStmt             *sql.Stmt
+	getRetweetStmt                   *sql.Stmt
+	getTweetByIDStmt                 *sql.Stmt
+	getTweetDetailStmt               *sql.Stmt
+	getTweetDetailReplyStmt          *sql.Stmt
+	getTweetsStmt                    *sql.Stmt
+	getTweetsByUserStmt              *sql.Stmt
+	getUserByActivationTokenStmt     *sql.Stmt
+	getUserByEmailStmt               *sql.Stmt
+	getUserInfoStmt                  *sql.Stmt
+	insertMessageStmt                *sql.Stmt
+	insertNotificationStmt           *sql.Stmt
+	insertReplyStmt                  *sql.Stmt
+	insertTweetStmt                  *sql.Stmt
+	updateUserStmt                   *sql.Stmt
+	updateUserProfileStmt            *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
-		db:                           tx,
-		tx:                           tx,
-		createBookmarkStmt:           q.createBookmarkStmt,
-		createFollowStmt:             q.createFollowStmt,
-		createLikeStmt:               q.createLikeStmt,
-		createRetweetStmt:            q.createRetweetStmt,
-		createUserStmt:               q.createUserStmt,
-		deleteBookmarkStmt:           q.deleteBookmarkStmt,
-		deleteFollowStmt:             q.deleteFollowStmt,
-		deleteLikeStmt:               q.deleteLikeStmt,
-		deleteReplyStmt:              q.deleteReplyStmt,
-		deleteRetweetStmt:            q.deleteRetweetStmt,
-		deleteRetweetOfTweetStmt:     q.deleteRetweetOfTweetStmt,
-		deleteTweetStmt:              q.deleteTweetStmt,
-		getBookmarkStmt:              q.getBookmarkStmt,
-		getBookmarksStmt:             q.getBookmarksStmt,
-		getFollowByUserIdStmt:        q.getFollowByUserIdStmt,
-		getFollowsStmt:               q.getFollowsStmt,
-		getLikeStmt:                  q.getLikeStmt,
-		getMessagesStmt:              q.getMessagesStmt,
-		getNotificationsStmt:         q.getNotificationsStmt,
-		getRetweetStmt:               q.getRetweetStmt,
-		getTweetByIDStmt:             q.getTweetByIDStmt,
-		getTweetDetailStmt:           q.getTweetDetailStmt,
-		getTweetDetailReplyStmt:      q.getTweetDetailReplyStmt,
-		getTweetsStmt:                q.getTweetsStmt,
-		getTweetsByUserStmt:          q.getTweetsByUserStmt,
-		getUserByActivationTokenStmt: q.getUserByActivationTokenStmt,
-		getUserByEmailStmt:           q.getUserByEmailStmt,
-		getUserInfoStmt:              q.getUserInfoStmt,
-		insertMessageStmt:            q.insertMessageStmt,
-		insertNotificationStmt:       q.insertNotificationStmt,
-		insertReplyStmt:              q.insertReplyStmt,
-		insertTweetStmt:              q.insertTweetStmt,
-		updateUserStmt:               q.updateUserStmt,
-		updateUserProfileStmt:        q.updateUserProfileStmt,
+		db:                               tx,
+		tx:                               tx,
+		createBookmarkStmt:               q.createBookmarkStmt,
+		createFollowStmt:                 q.createFollowStmt,
+		createLikeStmt:                   q.createLikeStmt,
+		createRetweetStmt:                q.createRetweetStmt,
+		createUserStmt:                   q.createUserStmt,
+		deleteBookmarkStmt:               q.deleteBookmarkStmt,
+		deleteBookmarksByTweetUserIDStmt: q.deleteBookmarksByTweetUserIDStmt,
+		deleteBookmarksByUserIDStmt:      q.deleteBookmarksByUserIDStmt,
+		deleteFollowStmt:                 q.deleteFollowStmt,
+		deleteFollowsByUserIDStmt:        q.deleteFollowsByUserIDStmt,
+		deleteLikeStmt:                   q.deleteLikeStmt,
+		deleteLikesByUserIDStmt:          q.deleteLikesByUserIDStmt,
+		deleteMessagesByUserIDStmt:       q.deleteMessagesByUserIDStmt,
+		deleteNotificationsByUserIDStmt:  q.deleteNotificationsByUserIDStmt,
+		deleteRepliesByUserIDStmt:        q.deleteRepliesByUserIDStmt,
+		deleteReplyStmt:                  q.deleteReplyStmt,
+		deleteRetweetStmt:                q.deleteRetweetStmt,
+		deleteRetweetOfTweetStmt:         q.deleteRetweetOfTweetStmt,
+		deleteRetweetsByUserIDStmt:       q.deleteRetweetsByUserIDStmt,
+		deleteTweetStmt:                  q.deleteTweetStmt,
+		deleteTweetsByUserIDStmt:         q.deleteTweetsByUserIDStmt,
+		deleteUserStmt:                   q.deleteUserStmt,
+		getBookmarkStmt:                  q.getBookmarkStmt,
+		getBookmarksStmt:                 q.getBookmarksStmt,
+		getFollowByUserIdStmt:            q.getFollowByUserIdStmt,
+		getFollowsStmt:                   q.getFollowsStmt,
+		getLikeStmt:                      q.getLikeStmt,
+		getMessagesStmt:                  q.getMessagesStmt,
+		getNotificationsStmt:             q.getNotificationsStmt,
+		getRetweetStmt:                   q.getRetweetStmt,
+		getTweetByIDStmt:                 q.getTweetByIDStmt,
+		getTweetDetailStmt:               q.getTweetDetailStmt,
+		getTweetDetailReplyStmt:          q.getTweetDetailReplyStmt,
+		getTweetsStmt:                    q.getTweetsStmt,
+		getTweetsByUserStmt:              q.getTweetsByUserStmt,
+		getUserByActivationTokenStmt:     q.getUserByActivationTokenStmt,
+		getUserByEmailStmt:               q.getUserByEmailStmt,
+		getUserInfoStmt:                  q.getUserInfoStmt,
+		insertMessageStmt:                q.insertMessageStmt,
+		insertNotificationStmt:           q.insertNotificationStmt,
+		insertReplyStmt:                  q.insertReplyStmt,
+		insertTweetStmt:                  q.insertTweetStmt,
+		updateUserStmt:                   q.updateUserStmt,
+		updateUserProfileStmt:            q.updateUserProfileStmt,
 	}
 }
