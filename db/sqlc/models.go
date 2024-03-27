@@ -37,6 +37,15 @@ type Message struct {
 	CreatedAt  sql.NullTime `json:"created_at"`
 }
 
+type Notification struct {
+	NotificationID int64     `json:"notification_id"`
+	UserID         int64     `json:"user_id"`
+	ActionType     string    `json:"action_type"`
+	ReferenceID    int64     `json:"reference_id"`
+	Read           bool      `json:"read"`
+	CreatedAt      time.Time `json:"created_at"`
+}
+
 type Reply struct {
 	ID           int64          `json:"id"`
 	TweetID      int64          `json:"tweet_id"`

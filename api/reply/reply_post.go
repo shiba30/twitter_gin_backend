@@ -67,6 +67,24 @@ func PostReply(cfg config.Config, redisConn *interfaces.RedisConn, queries *sqlc
 			return
 		}
 
+		// 通知テーブルにコメントを登録
+		tweet, err := queries.GetTweetByID(c, tweetID)
+		if err != nil {
+			c.JSON(500, gin.H{"error": "ツイート情報の取得に失敗しました"})
+			return
+		}
+		if tweet.UserID != userInfo.ID {
+			_, err = queries.InsertNotification(c, sqlc.InsertNotificationParams{
+				UserID:      tweet.UserID,
+				ActionType:  "comment",
+				ReferenceID: tweetID,
+			})
+			if err != nil {
+				c.JSON(500, gin.H{"error": "通知の登録に失敗しました"})
+				return
+			}
+		}
+
 		log.Println("successful reply")
 
 		// 成功レスポンス

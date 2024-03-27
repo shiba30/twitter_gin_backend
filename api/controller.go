@@ -9,6 +9,7 @@ import (
 	"example.com/golang_twitter/api/interfaces"
 	"example.com/golang_twitter/api/message"
 	"example.com/golang_twitter/api/middleware"
+	"example.com/golang_twitter/api/notification"
 	"example.com/golang_twitter/api/tweet"
 	"example.com/golang_twitter/api/user"
 	"example.com/golang_twitter/config"
@@ -38,6 +39,7 @@ func (c *Controller) Routes(router *gin.Engine) {
 		user.LoginRoutes(api, c.RedisConn, c.Queries)
 		user.ProfileRoutes(api, c.Config, c.RedisConn, c.Queries)
 		tweet.TweetRoutes(api, c.Config, c.RedisConn, c.Queries)
+		notification.NotificationRoutes(api, c.Config, c.RedisConn, c.Queries)
 		bookmark.BookmarkRoutes(api, c.Config, c.RedisConn, c.Queries)
 		message.MessageRoutes(api, c.Config, c.RedisConn, c.Queries)
 	}
